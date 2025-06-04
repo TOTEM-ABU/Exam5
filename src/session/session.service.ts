@@ -1,26 +1,39 @@
-import { Injectable } from '@nestjs/common';
-import { CreateSessionDto } from './dto/create-session.dto';
-import { UpdateSessionDto } from './dto/update-session.dto';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { PrismaService } from 'src/tools/prisma/prisma.service';
 
 @Injectable()
 export class SessionService {
-  create(createSessionDto: CreateSessionDto) {
-    return 'This action adds a new session';
+  constructor(private readonly prisma: PrismaService) {}
+
+  async findAll() {
+    const session = await this.prisma.session.findMany();
+
+    if (session.length === 0) {
+      throw new NotFoundException('Sessions not found!');
+    }
+
+    return session;
   }
 
-  findAll() {
-    return `This action returns all session`;
-  }
+  async remove(id: string) {
+    return await this.prisma.$transaction(async (tx) => {
+      const session = await tx.session.findUnique({
+        where: { id },
+        select: { id: true, userId: true },
+      });
 
-  findOne(id: number) {
-    return `This action returns a #${id} session`;
-  }
+      if (!session) {
+        throw new Error('Session topilmadi!');
+      }
 
-  update(id: number, updateSessionDto: UpdateSessionDto) {
-    return `This action updates a #${id} session`;
-  }
+      await tx.session.delete({ where: { id } });
 
-  remove(id: number) {
-    return `This action removes a #${id} session`;
+      await tx.user.update({
+        where: { id: session.userId },
+        data: { isVerified: false },
+      });
+
+      return { message: 'Session o‘chirildi!' };
+    });
   }
 }

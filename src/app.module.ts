@@ -21,7 +21,6 @@ import { ShowcaseModule } from './showcase/showcase.module';
 import { SizeModule } from './size/size.module';
 import { ToolModule } from './tool/tool.module';
 import { UserModule } from './user/user.module';
-import { CapacityModule } from './capacity/capacity.module';
 
 @Module({
   imports: [
@@ -52,6 +51,7 @@ import { CapacityModule } from './capacity/capacity.module';
     SizeModule,
     ToolModule,
     UserModule,
+    CapacityModule,
   ],
   controllers: [MulterController],
 })

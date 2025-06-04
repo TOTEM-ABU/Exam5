@@ -9,8 +9,7 @@ datasource db {
 
 enum RoleType {
   ADMIN
-  USER_FIZ
-  USER_YUR
+  USER
   SUPER_ADMIN
   VIEWER_ADMIN
 }
@@ -52,6 +51,7 @@ model User {
   phoneNumber  String   @unique
   district     String
   role         RoleType
+  avatar       String
   refreshToken String?
   isVerified   Boolean  @default(false)
 

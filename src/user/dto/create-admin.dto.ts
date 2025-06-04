@@ -1,16 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { RoleType } from '@prisma/client';
 import {
-  IsDate,
   IsEmail,
   IsPhoneNumber,
   IsString,
-  IsUrl,
   IsUUID,
   Length,
 } from 'class-validator';
 
-export class CreateUserDto {
+export class CreateAdminDto {
   @ApiProperty({ example: 'Aziz' })
   @IsString()
   firstName: string;
@@ -40,7 +38,7 @@ export class CreateUserDto {
 
   @ApiProperty({
     enum: RoleType,
-    example: 'USER',
+    example: 'ADMIN/SUPER_ADMIN/VIEWER_ADMIN',
   })
   @IsString()
   role: RoleType;
