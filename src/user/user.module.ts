@@ -9,7 +9,7 @@ import { JwtModule } from '@nestjs/jwt';
   imports: [
     JwtModule.register({
       global: true,
-      secret: 'soz',
+      secret: process.env.JWT_SECRET,
     }),
     MailModule,
     PrismaModule,

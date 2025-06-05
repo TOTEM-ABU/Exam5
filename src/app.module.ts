@@ -27,7 +27,7 @@ import { UserModule } from './user/user.module';
     PrismaModule,
     JwtModule.register({
       global: true,
-      secret: 'soz',
+      secret: process.env.JWT_SECRET,
       signOptions: { expiresIn: '60s' },
     }),
     ServeStaticModule.forRoot({

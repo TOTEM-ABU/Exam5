@@ -6,8 +6,8 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
-import { PrismaService } from 'src/tools/prisma/prisma.service';
 import { Request } from 'express';
+import { PrismaService } from 'src/tools/prisma/prisma.service';
 
 @Injectable()
 export class SessionGuard implements CanActivate {
@@ -31,8 +31,7 @@ export class SessionGuard implements CanActivate {
       const decoded = this.jwtService.verify(token);
       const userId = decoded.id;
 
-      const userIp =
-        req.ip || (req.headers['x-forwarded-for'] as string) || 'unknown';
+      const userIp = req.ip || (req.headers['x-forwarded-for'] as string) || 'unknown';
 
       const session = await this.prisma.session.findFirst({
         where: {
@@ -41,10 +40,9 @@ export class SessionGuard implements CanActivate {
       });
 
       if (!session) {
-        throw new UnauthorizedException('Session expired or invalid device');
+        throw new UnauthorizedException('Session expired or invalid device/IP');
       }
-
-      req['user'] = decoded;
+      req['user'] = decoded; 
       return true;
     } catch (err) {
       throw new UnauthorizedException('Invalid or expired token');

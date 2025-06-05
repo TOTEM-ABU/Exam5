@@ -284,6 +284,7 @@ export class UserService {
       }
 
       const match = await bcrypt.compare(data.password, user.password);
+
       if (!match) {
         throw new BadRequestException('Wrong credentials!');
       }
@@ -291,12 +292,12 @@ export class UserService {
       const payload = { id: user.id, role: user.role };
 
       const access_token = this.jwt.sign(payload, {
-        secret: 'accessSecret',
+        secret: process.env.ACCESS_SECRET,
         expiresIn: '15m',
       });
 
       const refresh_token = this.jwt.sign(payload, {
-        secret: 'refreshSecret',
+        secret: process.env.REFRESH_SECRET,
         expiresIn: '7d',
       });
 
@@ -308,7 +309,7 @@ export class UserService {
           userId: user.id,
           token: refresh_token,
           ipAddress: request.ip || '',
-          expiresAt,
+          expiresAt: expiresAt,
           deviceInfo: request.headers['user-agent'] || '',
         },
       });
@@ -360,7 +361,7 @@ export class UserService {
   async refreshAccessToken(data: RefreshTokenDto) {
     try {
       const payload = this.jwt.verify(data.refresh_token, {
-        secret: 'refreshSecret',
+        secret: process.env.REFRESH_SECRET,
       });
 
       const user = await this.prisma.user.findUnique({
@@ -371,13 +372,12 @@ export class UserService {
         throw new BadRequestException('Invalid refresh token!');
       }
 
-      const newAccessToken = this.jwt.sign(
-        { id: user.id, role: user.role },
-        {
-          secret: 'accessSecret',
-          expiresIn: '15m',
-        },
-      );
+      const payload2 = { id: user.id, role: user.role };
+
+      const newAccessToken = this.jwt.sign(payload2, {
+        secret: process.env.ACCESS_SECRET,
+        expiresIn: '15m',
+      });
 
       return {
         access_token: newAccessToken,

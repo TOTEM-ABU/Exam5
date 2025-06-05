@@ -1,34 +1,96 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { ContactService } from './contact.service';
 import { CreateContactDto } from './dto/create-contact.dto';
 import { UpdateContactDto } from './dto/update-contact.dto';
+import { ApiTags, ApiQuery } from '@nestjs/swagger';
+import { RoleType } from '@prisma/client';
+import { RoleGuard } from 'src/tools/guards/role/role.guard';
+import { AuthGuard } from 'src/tools/guards/auth/auth.guard';
+import { Roles } from 'src/tools/decorators/roles.decorators';
 
+@ApiTags('Contact')
 @Controller('contact')
 export class ContactController {
   constructor(private readonly contactService: ContactService) {}
 
+  @Roles(RoleType.ADMIN)
+  @UseGuards(RoleGuard)
+  @UseGuards(AuthGuard)
   @Post()
   create(@Body() createContactDto: CreateContactDto) {
     return this.contactService.create(createContactDto);
   }
 
   @Get()
-  findAll() {
-    return this.contactService.findAll();
+  @ApiQuery({ name: 'name', required: false, type: String })
+  @ApiQuery({ name: 'surName', required: false, type: String })
+  @ApiQuery({ name: 'phone', required: false, type: String })
+  @ApiQuery({ name: 'address', required: false, type: String })
+  @ApiQuery({ name: 'message', required: false, type: String })
+  @ApiQuery({
+    name: 'sortBy',
+    required: false,
+    enum: ['name', 'createdAt'],
+    example: 'createdAt',
+  })
+  @ApiQuery({ name: 'sort', required: false, enum: ['asc', 'desc'] })
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  findAll(
+    @Query('name') name?: string,
+    @Query('surName') surName?: string,
+    @Query('phone') phone?: string,
+    @Query('address') address?: string,
+    @Query('message') message?: string,
+    @Query('sortBy') sortBy?: 'name' | 'createdAt',
+    @Query('sort') sort?: 'asc' | 'desc',
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+  ) {
+    return this.contactService.findAll({
+      name,
+      surName,
+      phone,
+      address,
+      message,
+      sortBy,
+      sort,
+      page,
+      limit,
+    });
   }
 
+  @Roles(RoleType.ADMIN, RoleType.SUPER_ADMIN)
+  @UseGuards(RoleGuard)
+  @UseGuards(AuthGuard)
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.contactService.findOne(+id);
+    return this.contactService.findOne(id);
   }
 
+  @Roles(RoleType.ADMIN, RoleType.SUPER_ADMIN)
+  @UseGuards(RoleGuard)
+  @UseGuards(AuthGuard)
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateContactDto: UpdateContactDto) {
-    return this.contactService.update(+id, updateContactDto);
+    return this.contactService.update(id, updateContactDto);
   }
 
+  @Roles(RoleType.ADMIN)
+  @UseGuards(RoleGuard)
+  @UseGuards(AuthGuard)
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.contactService.remove(+id);
+    return this.contactService.remove(id);
   }
 }

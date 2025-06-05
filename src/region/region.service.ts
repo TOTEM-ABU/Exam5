@@ -38,7 +38,7 @@ export class RegionService {
   async findAll(query: {
     search?: string;
     sort?: 'asc' | 'desc';
-    sortBy?: string;
+    sortBy?: 'name_uz' | 'name_ru' | 'name_en';
     page?: number;
     limit?: number;
   }) {
@@ -46,7 +46,7 @@ export class RegionService {
       const {
         search = '',
         sort = 'asc',
-        sortBy = 'name',
+        sortBy = 'name_uz',
         page = 1,
         limit = 10,
       } = query;
@@ -54,21 +54,33 @@ export class RegionService {
       const take = Number(limit);
       const skip = (Number(page) - 1) * take;
 
+      const where = search
+        ? {
+            OR: [
+              {
+                name_uz: {
+                  contains: search,
+                  mode: 'insensitive' as const,
+                },
+              },
+              {
+                name_ru: {
+                  contains: search,
+                  mode: 'insensitive' as const,
+                },
+              },
+              {
+                name_en: {
+                  contains: search,
+                  mode: 'insensitive' as const,
+                },
+              },
+            ],
+          }
+        : {};
+
       const regions = await this.prisma.region.findMany({
-        where: {
-          name_uz: {
-            contains: search,
-            mode: 'insensitive',
-          },
-          name_ru: {
-            contains: search,
-            mode: 'insensitive',
-          },
-          name_en: {
-            contains: search,
-            mode: 'insensitive',
-          },
-        },
+        where,
         orderBy: {
           [sortBy]: sort,
         },
@@ -76,22 +88,7 @@ export class RegionService {
         take,
       });
 
-      const total = await this.prisma.region.count({
-        where: {
-          name_uz: {
-            contains: search,
-            mode: 'insensitive',
-          },
-          name_ru: {
-            contains: search,
-            mode: 'insensitive',
-          },
-          name_en: {
-            contains: search,
-            mode: 'insensitive',
-          },
-        },
-      });
+      const total = await this.prisma.region.count({ where });
 
       return {
         data: regions,

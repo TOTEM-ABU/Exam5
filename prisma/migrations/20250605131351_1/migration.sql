@@ -1,5 +1,5 @@
 -- CreateEnum
-CREATE TYPE "RoleType" AS ENUM ('ADMIN', 'USER_FIZ', 'USER_YUR', 'SUPER_ADMIN', 'VIEWER_ADMIN');
+CREATE TYPE "RoleType" AS ENUM ('ADMIN', 'USER', 'SUPER_ADMIN', 'VIEWER_ADMIN');
 
 -- CreateEnum
 CREATE TYPE "PaymentType" AS ENUM ('CASH', 'CARD');
@@ -31,6 +31,7 @@ CREATE TABLE "User" (
     "phoneNumber" TEXT NOT NULL,
     "district" TEXT NOT NULL,
     "role" "RoleType" NOT NULL,
+    "avatar" TEXT NOT NULL,
     "refreshToken" TEXT,
     "isVerified" BOOLEAN NOT NULL DEFAULT false,
     "regionId" TEXT,

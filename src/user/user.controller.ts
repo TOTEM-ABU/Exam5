@@ -61,14 +61,16 @@ export class UserController {
     return this.userService.refreshAccessToken(dto);
   }
 
+  // @UseGuards(SessionGuard)
   @UseGuards(AuthGuard)
-  @Patch('update-password/:id')
+  @Patch('update-password')
   async updatePassword(@Req() req: Request, @Body() dto: UpdatePasswordDto) {
     return this.userService.updatePassword(req['user'], dto);
   }
 
   @Roles(RoleType.ADMIN, RoleType.SUPER_ADMIN)
   @UseGuards(RoleGuard)
+  // @UseGuards(SessionGuard)
   @UseGuards(AuthGuard)
   @Patch('update/:id')
   async update(@Param('id') id: string, @Body() dto: UpdateUserDto) {
@@ -82,9 +84,11 @@ export class UserController {
 
   @Roles(RoleType.ADMIN)
   @UseGuards(RoleGuard)
+  // @UseGuards(SessionGuard)
   @UseGuards(AuthGuard)
   @Get()
-  @ApiQuery({ name: 'name', required: false })
+  @ApiQuery({ name: 'firstName', required: false })
+  @ApiQuery({ name: 'lastName', required: false })
   @ApiQuery({ name: 'email', required: false })
   @ApiQuery({ name: 'phoneNumber', required: false })
   @ApiQuery({ name: 'role', enum: RoleType, required: false })
@@ -104,7 +108,8 @@ export class UserController {
   @ApiQuery({ name: 'page', required: false, type: Number })
   @ApiQuery({ name: 'limit', required: false, type: Number })
   async findAll(
-    @Query('name') name?: string,
+    @Query('firstName') firstName?: string,
+    @Query('lastName') lastName?: string,
     @Query('email') email?: string,
     @Query('phoneNumber') phoneNumber?: string,
     @Query('role') role?: RoleType,
@@ -115,7 +120,8 @@ export class UserController {
     @Query('limit') limit: number = 10,
   ) {
     return this.userService.findAllUser({
-      name,
+      firstName,
+      lastName,
       email,
       phoneNumber,
       role,
@@ -127,7 +133,7 @@ export class UserController {
     });
   }
 
-  @UseGuards(SessionGuard)
+  // @UseGuards(SessionGuard)
   @UseGuards(AuthGuard)
   @Get('me')
   async me(@Req() req: Request) {

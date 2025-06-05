@@ -1,26 +1,173 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  HttpException,
+  HttpStatus,
+  BadRequestException,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { CreateSizeDto } from './dto/create-size.dto';
 import { UpdateSizeDto } from './dto/update-size.dto';
+import { PrismaService } from 'src/tools/prisma/prisma.service';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class SizeService {
-  create(createSizeDto: CreateSizeDto) {
-    return 'This action adds a new size';
+  constructor(private readonly prisma: PrismaService) {}
+
+  async create(data: CreateSizeDto) {
+    const existingSize = await this.prisma.size.findFirst({
+      where: { name_uz: data.name_uz },
+    });
+
+    if (existingSize) {
+      throw new BadRequestException('Bu nomli o‘lcham allaqachon mavjud');
+    }
+
+    try {
+      const size = await this.prisma.size.create({ data });
+      return size;
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new InternalServerErrorException('Error in create tool!');
+    }
   }
 
-  findAll() {
-    return `This action returns all size`;
+  async findAll(query: {
+    search?: string;
+    sort?: 'asc' | 'desc';
+    sortBy?: 'name_uz' | 'name_ru' | 'name_en';
+    page?: number;
+    limit?: number;
+  }) {
+    try {
+      const {
+        search = '',
+        sort = 'asc',
+        sortBy = 'name_uz',
+        page = 1,
+        limit = 10,
+      } = query;
+
+      const take = Number(limit);
+      const skip = (Number(page) - 1) * take;
+      const whereClause = search
+        ? {
+            OR: [
+              {
+                name_uz: {
+                  contains: search,
+                  mode: Prisma.QueryMode.insensitive,
+                },
+              },
+              {
+                name_ru: {
+                  contains: search,
+                  mode: Prisma.QueryMode.insensitive,
+                },
+              },
+              {
+                name_en: {
+                  contains: search,
+                  mode: Prisma.QueryMode.insensitive,
+                },
+              },
+            ],
+          }
+        : {};
+
+      const sizes = await this.prisma.size.findMany({
+        where: whereClause,
+        orderBy: {
+          [sortBy]: sort,
+        },
+        skip,
+        take,
+      });
+
+      const total = await this.prisma.size.count({
+        where: whereClause,
+      });
+
+      return {
+        data: sizes,
+        meta: {
+          total,
+          page: Number(page),
+          limit: take,
+          lastPage: Math.ceil(total / take),
+        },
+      };
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new InternalServerErrorException('Error in get all sizes!');
+    }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} size`;
+  async findOne(id: string) {
+    const exists = await this.prisma.size.findFirst({ where: { id } });
+
+    if (!exists) {
+      throw new HttpException('Size topilmadi', HttpStatus.NOT_FOUND);
+    }
+
+    try {
+      const size = await this.prisma.size.findUnique({
+        where: { id },
+      });
+
+      return size;
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new InternalServerErrorException('Error in get one size!');
+    }
   }
 
-  update(id: number, updateSizeDto: UpdateSizeDto) {
-    return `This action updates a #${id} size`;
+  async update(id: string, data: UpdateSizeDto) {
+    const exists = await this.prisma.size.findFirst({ where: { id } });
+
+    if (!exists) {
+      throw new HttpException('Size topilmadi', HttpStatus.NOT_FOUND);
+    }
+
+    try {
+      const updated = await this.prisma.size.update({
+        where: { id },
+        data,
+      });
+
+      return updated;
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new InternalServerErrorException('Error in update size!');
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} size`;
+  async remove(id: string) {
+    const exists = await this.prisma.size.findFirst({ where: { id } });
+
+    if (!exists) {
+      throw new HttpException('Size topilmadi', HttpStatus.NOT_FOUND);
+    }
+
+    try {
+      const deleted = await this.prisma.size.delete({
+        where: { id },
+      });
+
+      return deleted;
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new InternalServerErrorException('Error in delete size!');
+    }
   }
 }

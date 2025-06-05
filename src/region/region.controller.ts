@@ -25,7 +25,7 @@ export class RegionController {
 
   @Roles(RoleType.ADMIN)
   @UseGuards(RoleGuard)
-  @UseGuards(SessionGuard)
+  // @UseGuards(SessionGuard)
   @UseGuards(AuthGuard)
   @Post()
   create(@Body() data: CreateRegionDto) {
@@ -38,15 +38,15 @@ export class RegionController {
   @ApiQuery({
     name: 'sortBy',
     required: false,
-    enum: ['name'],
-    example: 'name',
+    enum: ['name_uz', 'name_ru', 'name_en'],
+    example: 'name_uz',
   })
   @ApiQuery({ name: 'page', required: false, type: Number })
   @ApiQuery({ name: 'limit', required: false, type: Number })
   findAll(
     @Query('search') search?: string,
     @Query('sort') sort?: 'asc' | 'desc',
-    @Query('sortBy') sortBy?: string,
+    @Query('sortBy') sortBy?: 'name_uz' | 'name_ru' | 'name_en',
     @Query('page') page?: string,
     @Query('limit') limit?: string,
   ) {
@@ -66,7 +66,7 @@ export class RegionController {
 
   @Roles(RoleType.ADMIN, RoleType.SUPER_ADMIN)
   @UseGuards(RoleGuard)
-  @UseGuards(SessionGuard)
+  // @UseGuards(SessionGuard)
   @UseGuards(AuthGuard)
   @Patch(':id')
   update(@Param('id') id: string, @Body() data: UpdateRegionDto) {
@@ -75,7 +75,7 @@ export class RegionController {
 
   @Roles(RoleType.ADMIN)
   @UseGuards(RoleGuard)
-  @UseGuards(SessionGuard)
+  // @UseGuards(SessionGuard)
   @UseGuards(AuthGuard)
   @Delete(':id')
   remove(@Param('id') id: string) {
