@@ -13,7 +13,7 @@ import { PrismaService } from 'src/tools/prisma/prisma.service';
 export class CapacityService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(data: CreateCapacityDto) {
+  async create(data: CreateCapacityDto, userId: string) {
     const existingCapacity = await this.prisma.capacity.findFirst({
       where: {
         name_uz: data.name_uz,
@@ -29,12 +29,20 @@ export class CapacityService {
       );
     }
     try {
-      const capacity = await this.prisma.capacity.create({ data });
+      const capacity = await this.prisma.capacity.create({
+        data: {
+          ...data,
+          createdBy: userId,
+        },
+      });
 
       return capacity;
     } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
       throw new HttpException(
-        'Sig‘im yaratishda xatolik yuz berdi',
+        'Error in create capacity!',
         HttpStatus.BAD_REQUEST,
       );
     }
@@ -74,6 +82,14 @@ export class CapacityService {
             mode: 'insensitive',
           },
         },
+        include: {
+          createdByUser: {
+            select: {
+              firstName: true,
+              role: true,
+            },
+          },
+        },
         orderBy: sortBy === 'name' ? { name_uz: sort } : undefined,
         skip,
         take,
@@ -106,7 +122,13 @@ export class CapacityService {
         },
       };
     } catch (error) {
-      throw new BadRequestException('Sig‘imlar hali mavjud emas!');
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException(
+        'Error in get all capacities!',
+        HttpStatus.NOT_FOUND,
+      );
     }
   }
 
@@ -120,11 +142,25 @@ export class CapacityService {
     try {
       const capacity = await this.prisma.capacity.findUnique({
         where: { id },
+        include: {
+          createdByUser: {
+            select: {
+              firstName: true,
+              role: true,
+            },
+          },
+        },
       });
 
       return capacity;
     } catch (error) {
-      throw new NotFoundException('Sig‘imni olishda xatolik');
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException(
+        'Error in get one capacity!',
+        HttpStatus.NOT_FOUND,
+      );
     }
   }
 
@@ -143,9 +179,12 @@ export class CapacityService {
 
       return updated;
     } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
       throw new HttpException(
-        'Sig‘imni yangilashda xatolik',
-        HttpStatus.BAD_REQUEST,
+        'Error in update capacity!',
+        HttpStatus.NOT_FOUND,
       );
     }
   }
@@ -164,9 +203,12 @@ export class CapacityService {
 
       return deleted;
     } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
       throw new HttpException(
-        'Sig‘imni o‘chirishda xatolik',
-        HttpStatus.BAD_REQUEST,
+        'Error in delete capacity!',
+        HttpStatus.NOT_FOUND,
       );
     }
   }

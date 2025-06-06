@@ -8,6 +8,7 @@ import {
   Delete,
   Query,
   UseGuards,
+  Req,
 } from '@nestjs/common';
 import { BrandService } from './brand.service';
 import { CreateBrandDto } from './dto/create-brand.dto';
@@ -17,6 +18,7 @@ import { RoleGuard } from 'src/tools/guards/role/role.guard';
 import { AuthGuard } from 'src/tools/guards/auth/auth.guard';
 import { RoleType } from '@prisma/client';
 import { Roles } from 'src/tools/decorators/roles.decorators';
+import { Request } from 'express';
 
 @Controller('brand')
 export class BrandController {
@@ -26,8 +28,8 @@ export class BrandController {
   @UseGuards(RoleGuard)
   @UseGuards(AuthGuard)
   @Post()
-  create(@Body() data: CreateBrandDto) {
-    return this.brandService.create(data);
+  create(@Body() data: CreateBrandDto, @Req() req: Request) {
+    return this.brandService.create(data, req['user']);
   }
 
   @Roles(RoleType.ADMIN, RoleType.SUPER_ADMIN)

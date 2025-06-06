@@ -27,7 +27,13 @@ export class GeneralInfoService {
 
       return info;
     } catch (error) {
-      throw new BadRequestException('GeneralInfo yaratishda xatolik!');
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException(
+        'Error in create general-info!',
+        HttpStatus.BAD_REQUEST,
+      );
     }
   }
 
@@ -74,7 +80,13 @@ export class GeneralInfoService {
         },
       };
     } catch (error) {
-      throw new BadRequestException('GeneralInfo olishda xatolik!');
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException(
+        'Error in get all general-infos!',
+        HttpStatus.NOT_FOUND,
+      );
     }
   }
 
@@ -93,9 +105,12 @@ export class GeneralInfoService {
       });
       return info;
     } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
       throw new HttpException(
-        'Topishda xatolik yuz berdi',
-        HttpStatus.INTERNAL_SERVER_ERROR,
+        'Error in get one general-info!',
+        HttpStatus.NOT_FOUND,
       );
     }
   }
@@ -117,7 +132,13 @@ export class GeneralInfoService {
 
       return updatedInfo;
     } catch (error) {
-      throw new BadRequestException('Yangilashda xatolik yuz berdi!');
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException(
+        'Error in update general-info!',
+        HttpStatus.NOT_FOUND,
+      );
     }
   }
 
@@ -137,7 +158,13 @@ export class GeneralInfoService {
 
       return deletedInfo;
     } catch (error) {
-      throw new BadRequestException('O‘chirishda xatolik yuz berdi!');
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException(
+        'Error in delete general-info!',
+        HttpStatus.NOT_FOUND,
+      );
     }
   }
 }

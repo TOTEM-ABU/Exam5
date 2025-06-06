@@ -31,6 +31,12 @@ enum StatusType {
   CANCELLED
 }
 
+enum LevelType {
+  BASIC
+  INTERMEDIATE
+  ADVANCED
+}
+
 model Region {
   id      String @id @default(uuid())
   name_uz String @unique
@@ -62,6 +68,12 @@ model User {
   orders      Order[]
   comments    Comment[]
   masterStars MasterStar[]
+  brands      Brand[]
+  sizes       Size[]
+  capacities  Capacity[]
+  tools       Tool[]
+  products    Product[]
+  masters     Master[]
 
   createdAt DateTime @default(now())
 }
@@ -85,6 +97,9 @@ model Brand {
   name_ru String @unique
   name_en String @unique
 
+  createdByUser User?   @relation(fields: [createdBy], references: [id])
+  createdBy     String?
+
   tools ToolBrand[]
 
   createdAt DateTime @default(now())
@@ -96,6 +111,9 @@ model Size {
   name_ru String @unique
   name_en String @unique
 
+  createdByUser User?   @relation(fields: [createdBy], references: [id])
+  createdBy     String?
+
   tools ToolSize[]
 
   createdAt DateTime @default(now())
@@ -106,6 +124,9 @@ model Capacity {
   name_uz String @unique
   name_ru String @unique
   name_en String @unique
+
+  createdByUser User?   @relation(fields: [createdBy], references: [id])
+  createdBy     String?
 
   tools ToolCapacity[]
 
@@ -169,14 +190,15 @@ model Tool {
   toolCapacities    ToolCapacity[]
   orderProductTools OrderProductTool[]
 
+  createdByUser User?   @relation(fields: [createdBy], references: [id])
+  createdBy     String?
+
   createdAt DateTime @default(now())
 }
 
 model Level {
-  id              String @id @default(uuid())
-  name_uz         String @unique
-  name_ru         String @unique
-  name_en         String @unique
+  id              String    @id @default(uuid())
+  name            LevelType
   minWorkingHours Int
   priceHourly     Float
   priceDaily      Int
@@ -205,6 +227,9 @@ model Product {
   masterProducts MasterProduct[]
   orderProducts  OrderProduct[]
 
+  createdByUser User?   @relation(fields: [createdBy], references: [id])
+  createdBy     String?
+
   createdAt DateTime @default(now())
 }
 
@@ -216,6 +241,9 @@ model ProductLevel {
 
   product Product @relation(fields: [productId], references: [id])
   level   Level   @relation(fields: [levelId], references: [id])
+
+  priceHourly Int
+  priceDaily  Int
 
   createdAt DateTime @default(now())
 
@@ -241,6 +269,9 @@ model Master {
   masterStar     MasterStar[]
   masterLevels   MasterLevel[]
   orderMasters   OrderMaster[]
+
+  createdByUser User?   @relation(fields: [createdBy], references: [id])
+  createdBy     String?
 
   createdAt DateTime @default(now())
 }
@@ -387,7 +418,6 @@ model Contact {
   surName String
   phone   String @unique
   address String
-  message String
 
   createdAt DateTime @default(now())
 }

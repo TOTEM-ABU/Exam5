@@ -15,11 +15,7 @@ export class CreateContactDto {
   @IsPassportNumber('UZ')
   phone: string;
 
-  @ApiProperty({ example: 'Some address' })
+  @ApiProperty({ example: 'Main St. 123' })
   @IsString()
   address: string;
-
-  @ApiProperty({ example: 'Message' })
-  @IsString()
-  message: string;
 }

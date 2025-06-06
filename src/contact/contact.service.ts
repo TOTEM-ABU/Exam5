@@ -28,7 +28,13 @@ export class ContactService {
 
       return contact;
     } catch (error) {
-      throw new BadRequestException('Contact yaratishda xatolik yuz berdi');
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException(
+        'Error in create contact!',
+        HttpStatus.BAD_REQUEST,
+      );
     }
   }
 
@@ -50,7 +56,7 @@ export class ContactService {
         phone = '',
         address = '',
         message = '',
-        sortBy = 'createdAt', // default sortBy createdAt
+        sortBy = 'createdAt', 
         sort = 'asc',
         page = 1,
         limit = 10,
@@ -83,7 +89,13 @@ export class ContactService {
         },
       };
     } catch (error) {
-      throw new BadRequestException('Contactlarni olishda xatolik yuz berdi!');
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException(
+        'Error in get all constacts!',
+        HttpStatus.NOT_FOUND,
+      );
     }
   }
 
@@ -97,8 +109,12 @@ export class ContactService {
 
       return contact;
     } catch (error) {
-      throw new BadRequestException(
-        'Contactlarni bittasini olishda xatolik yuz berdi!',
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException(
+        'Error in get one contact!',
+        HttpStatus.NOT_FOUND,
       );
     }
   }
@@ -120,7 +136,10 @@ export class ContactService {
 
       return updatedContact;
     } catch (error) {
-      throw new BadRequestException('Contactni yangilashda xatolik yuz berdi');
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException('Error in update contact!', HttpStatus.NOT_FOUND);
     }
   }
 
@@ -140,7 +159,10 @@ export class ContactService {
 
       return updatedContact;
     } catch (error) {
-      throw new BadRequestException('Contactni o‘chirishda xatolik yuz berdi');
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException('Error in delete contact!', HttpStatus.NOT_FOUND);
     }
   }
 }

@@ -19,13 +19,19 @@ export class ShowcaseService {
     });
 
     if (existingShowcase) {
-      throw new BadRequestException('Bu nomli showcase allaqachon mavjud');
+      throw new BadRequestException('Bu nomli showcase allaqachon mavjud!');
     }
 
     try {
       return await this.prisma.showcase.create({ data });
     } catch (error) {
-      throw new BadRequestException('Showcase yaratishda xatolik!');
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException(
+        'Error in create showcase!',
+        HttpStatus.BAD_REQUEST,
+      );
     }
   }
 
@@ -77,7 +83,13 @@ export class ShowcaseService {
         },
       };
     } catch (error) {
-      throw new BadRequestException('Showcase larni olishda xatolik!');
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException(
+        'Error in get all showcases!',
+        HttpStatus.NOT_FOUND,
+      );
     }
   }
 
@@ -94,9 +106,12 @@ export class ShowcaseService {
       const showcase = await this.prisma.showcase.findUnique({ where: { id } });
       return showcase;
     } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
       throw new HttpException(
-        'Showcaseni olishda xatolik',
-        HttpStatus.INTERNAL_SERVER_ERROR,
+        'Error in get one showcase!',
+        HttpStatus.NOT_FOUND,
       );
     }
   }
@@ -116,7 +131,13 @@ export class ShowcaseService {
         data,
       });
     } catch (error) {
-      throw new BadRequestException('Showcase yangilashda xatolik!');
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException(
+        'Error in update showcase!',
+        HttpStatus.NOT_FOUND,
+      );
     }
   }
 
@@ -134,7 +155,13 @@ export class ShowcaseService {
         where: { id },
       });
     } catch (error) {
-      throw new BadRequestException('Showcase o‘chirishda xatolik!');
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException(
+        'Error in delete showcase!',
+        HttpStatus.NOT_FOUND,
+      );
     }
   }
 }

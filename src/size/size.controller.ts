@@ -8,6 +8,7 @@ import {
   Delete,
   Query,
   UseGuards,
+  Req,
 } from '@nestjs/common';
 import { SizeService } from './size.service';
 import { CreateSizeDto } from './dto/create-size.dto';
@@ -18,6 +19,7 @@ import { RoleGuard } from 'src/tools/guards/role/role.guard';
 import { AuthGuard } from 'src/tools/guards/auth/auth.guard';
 import { RoleType } from '@prisma/client';
 import { SessionGuard } from 'src/tools/guards/session/session.guard';
+import { Request } from 'express';
 
 @Controller('size')
 export class SizeController {
@@ -25,16 +27,14 @@ export class SizeController {
 
   @Roles(RoleType.ADMIN)
   @UseGuards(RoleGuard)
-  // @UseGuards(SessionGuard)
   @UseGuards(AuthGuard)
   @Post()
-  create(@Body() createSizeDto: CreateSizeDto) {
-    return this.sizeService.create(createSizeDto);
+  create(@Body() createSizeDto: CreateSizeDto, @Req() req: Request) {
+    return this.sizeService.create(createSizeDto, req['user']);
   }
 
   @Roles(RoleType.ADMIN, RoleType.SUPER_ADMIN)
   @UseGuards(RoleGuard)
-  // @UseGuards(SessionGuard)
   @UseGuards(AuthGuard)
   @Get()
   @ApiQuery({ name: 'search', required: false })
@@ -65,7 +65,6 @@ export class SizeController {
 
   @Roles(RoleType.ADMIN, RoleType.SUPER_ADMIN)
   @UseGuards(RoleGuard)
-  // @UseGuards(SessionGuard)
   @UseGuards(AuthGuard)
   @Get(':id')
   findOne(@Param('id') id: string) {
@@ -74,7 +73,6 @@ export class SizeController {
 
   @Roles(RoleType.ADMIN, RoleType.SUPER_ADMIN)
   @UseGuards(RoleGuard)
-  // @UseGuards(SessionGuard)
   @UseGuards(AuthGuard)
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateSizeDto: UpdateSizeDto) {
@@ -83,7 +81,6 @@ export class SizeController {
 
   @Roles(RoleType.ADMIN)
   @UseGuards(RoleGuard)
-  // @UseGuards(SessionGuard)
   @UseGuards(AuthGuard)
   @Delete(':id')
   remove(@Param('id') id: string) {

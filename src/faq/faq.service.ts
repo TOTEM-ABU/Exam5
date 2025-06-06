@@ -18,10 +18,10 @@ export class FaqService {
       const faq = await this.prisma.fAQ.create({ data });
       return faq;
     } catch (error) {
-      throw new HttpException(
-        'FAQ yaratishda xatolik yuz berdi',
-        HttpStatus.BAD_REQUEST,
-      );
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException('Error in create FAQ!', HttpStatus.BAD_REQUEST);
     }
   }
 
@@ -67,7 +67,10 @@ export class FaqService {
         },
       };
     } catch (error) {
-      throw new BadRequestException('FAQ larni olishda xatolik yuz berdi!');
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException('Error in get all FAQs!', HttpStatus.NOT_FOUND);
     }
   }
 
@@ -81,10 +84,10 @@ export class FaqService {
 
       return faq;
     } catch (error) {
-      throw new HttpException(
-        'FAQni olishda xatolik',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException('Error in get one FAQ!', HttpStatus.NOT_FOUND);
     }
   }
 
@@ -99,10 +102,10 @@ export class FaqService {
       }
       return updated;
     } catch (error) {
-      throw new HttpException(
-        'FAQni yangilashda xatolik',
-        HttpStatus.BAD_REQUEST,
-      );
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException('Error in update FAQ!', HttpStatus.NOT_FOUND);
     }
   }
 
@@ -116,10 +119,10 @@ export class FaqService {
       }
       return deleted;
     } catch (error) {
-      throw new HttpException(
-        'FAQni o‘chirishda xatolik',
-        HttpStatus.BAD_REQUEST,
-      );
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException('Error in delete FAQ!', HttpStatus.NOT_FOUND);
     }
   }
 }

@@ -14,7 +14,7 @@ import { Prisma } from '@prisma/client';
 export class SizeService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(data: CreateSizeDto) {
+  async create(data: CreateSizeDto, userId: string) {
     const existingSize = await this.prisma.size.findFirst({
       where: { name_uz: data.name_uz },
     });
@@ -24,7 +24,12 @@ export class SizeService {
     }
 
     try {
-      const size = await this.prisma.size.create({ data });
+      const size = await this.prisma.size.create({
+        data: {
+          ...data,
+          createdBy: userId,
+        },
+      });
       return size;
     } catch (error) {
       if (error instanceof HttpException) {
@@ -79,6 +84,14 @@ export class SizeService {
 
       const sizes = await this.prisma.size.findMany({
         where: whereClause,
+        include: {
+          createdByUser: {
+            select: {
+              firstName: true,
+              role: true,
+            },
+          },
+        },
         orderBy: {
           [sortBy]: sort,
         },
@@ -117,6 +130,14 @@ export class SizeService {
     try {
       const size = await this.prisma.size.findUnique({
         where: { id },
+        include: {
+          createdByUser: {
+            select: {
+              firstName: true,
+              role: true,
+            },
+          },
+        },
       });
 
       return size;

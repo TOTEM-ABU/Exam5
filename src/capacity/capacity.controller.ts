@@ -8,6 +8,7 @@ import {
   Delete,
   Query,
   UseGuards,
+  Req,
 } from '@nestjs/common';
 import { CapacityService } from './capacity.service';
 import { CreateCapacityDto } from './dto/create-capacity.dto';
@@ -17,6 +18,7 @@ import { Roles } from 'src/tools/decorators/roles.decorators';
 import { RoleType } from '@prisma/client';
 import { RoleGuard } from 'src/tools/guards/role/role.guard';
 import { AuthGuard } from 'src/tools/guards/auth/auth.guard';
+import { Request } from 'express';
 
 @Controller('capacity')
 export class CapacityController {
@@ -26,8 +28,8 @@ export class CapacityController {
   @UseGuards(RoleGuard)
   @UseGuards(AuthGuard)
   @Post()
-  create(@Body() data: CreateCapacityDto) {
-    return this.capacityService.create(data);
+  create(@Body() data: CreateCapacityDto, @Req() req: Request) {
+    return this.capacityService.create(data, req['user']);
   }
 
   @Roles(RoleType.ADMIN, RoleType.SUPER_ADMIN)

@@ -12,7 +12,7 @@ import { PrismaService } from 'src/tools/prisma/prisma.service';
 export class BrandService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(data: CreateBrandDto) {
+  async create(data: CreateBrandDto, userId: string) {
     const existingBrand = await this.prisma.brand.findFirst({
       where: {
         name_uz: data.name_uz,
@@ -26,18 +26,26 @@ export class BrandService {
     }
 
     try {
-      const brand = await this.prisma.brand.create({ data });
+      const brand = await this.prisma.brand.create({
+        data: {
+          ...data,
+          createdBy: userId,
+        },
+      });
 
       return brand;
     } catch (error) {
-      throw new BadRequestException('Brendni yaratishda xatolik');
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException('Error in create brand!', HttpStatus.BAD_REQUEST);
     }
   }
 
   async findAll(query: {
     search?: string;
     sort?: 'asc' | 'desc';
-    sortBy?: 'name_uz' | 'name_ru' | 'name_en';
+    sortBy?: 'name_uz' | 'name_ru' | 'name_en' | 'createdAt';
     page?: number;
     limit?: number;
   }) {
@@ -45,7 +53,7 @@ export class BrandService {
       const {
         search = '',
         sort = 'asc',
-        sortBy = 'name',
+        sortBy = 'name_uz',
         page = 1,
         limit = 10,
       } = query;
@@ -53,19 +61,37 @@ export class BrandService {
       const take = Number(limit);
       const skip = (Number(page) - 1) * take;
 
+      const where = {
+        OR: [
+          {
+            name_uz: {
+              contains: search,
+              mode: 'insensitive' as const,
+            },
+          },
+          {
+            name_ru: {
+              contains: search,
+              mode: 'insensitive' as const,
+            },
+          },
+          {
+            name_en: {
+              contains: search,
+              mode: 'insensitive' as const,
+            },
+          },
+        ],
+      };
+
       const brands = await this.prisma.brand.findMany({
-        where: {
-          name_uz: {
-            contains: search,
-            mode: 'insensitive',
-          },
-          name_ru: {
-            contains: search,
-            mode: 'insensitive',
-          },
-          name_en: {
-            contains: search,
-            mode: 'insensitive',
+        where,
+        include: {
+          createdByUser: {
+            select: {
+              firstName: true,
+              role: true,
+            },
           },
         },
         orderBy: {
@@ -75,22 +101,7 @@ export class BrandService {
         take,
       });
 
-      const total = await this.prisma.brand.count({
-        where: {
-          name_uz: {
-            contains: search,
-            mode: 'insensitive',
-          },
-          name_ru: {
-            contains: search,
-            mode: 'insensitive',
-          },
-          name_en: {
-            contains: search,
-            mode: 'insensitive',
-          },
-        },
-      });
+      const total = await this.prisma.brand.count({ where });
 
       return {
         data: brands,
@@ -102,7 +113,8 @@ export class BrandService {
         },
       };
     } catch (error) {
-      throw new BadRequestException('Brendlar hali mavjud emas!');
+      console.error(error);
+      throw new HttpException('Error in get all brands!', HttpStatus.NOT_FOUND);
     }
   }
 
@@ -115,14 +127,22 @@ export class BrandService {
     try {
       const brand = await this.prisma.brand.findUnique({
         where: { id },
+        include: {
+          createdByUser: {
+            select: {
+              firstName: true,
+              role: true,
+            },
+          },
+        },
       });
 
       return brand;
     } catch (error) {
-      throw new HttpException(
-        'Brendni olishda xatolik',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException('Error in get one brand!', HttpStatus.NOT_FOUND);
     }
   }
 
@@ -141,10 +161,10 @@ export class BrandService {
 
       return updated;
     } catch (error) {
-      throw new HttpException(
-        'Brendni yangilashda xatolik',
-        HttpStatus.BAD_REQUEST,
-      );
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException('Error in update brand!', HttpStatus.NOT_FOUND);
     }
   }
 
@@ -162,10 +182,10 @@ export class BrandService {
 
       return deleted;
     } catch (error) {
-      throw new HttpException(
-        'Brendni o‘chirishda xatolik',
-        HttpStatus.BAD_REQUEST,
-      );
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException('Error in delete brand!', HttpStatus.NOT_FOUND);
     }
   }
 }

@@ -1,4 +1,9 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { UpdatePartnerDto } from './dto/update-partner.dto';
 import { PrismaService } from 'src/tools/prisma/prisma.service';
@@ -19,7 +24,13 @@ export class PartnerService {
       const partner = await this.prisma.partner.create({ data });
       return partner;
     } catch (error) {
-      throw new BadRequestException('Partner yaratishda xatolik yuz berdi');
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException(
+        'Error in create partner!',
+        HttpStatus.BAD_REQUEST,
+      );
     }
   }
 
@@ -65,7 +76,13 @@ export class PartnerService {
         },
       };
     } catch (error) {
-      throw new BadRequestException('Partnerlarni olishda xatolik yuz berdi');
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException(
+        'Error in get all partners!',
+        HttpStatus.NOT_FOUND,
+      );
     }
   }
 
@@ -83,7 +100,13 @@ export class PartnerService {
 
       return partner;
     } catch (error) {
-      throw new BadRequestException('Partnerni olishda xatolik yuz berdi');
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException(
+        'Error in get one partner!',
+        HttpStatus.NOT_FOUND,
+      );
     }
   }
 
@@ -103,7 +126,10 @@ export class PartnerService {
       });
       return updated;
     } catch (error) {
-      throw new BadRequestException('Partnerni yangilashda xatolik yuz berdi');
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException('Error in update partner!', HttpStatus.NOT_FOUND);
     }
   }
 
@@ -120,7 +146,10 @@ export class PartnerService {
       const deleted = await this.prisma.partner.delete({ where: { id } });
       return deleted;
     } catch (error) {
-      throw new BadRequestException('Partnerni o‘chirishda xatolik yuz berdi');
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException('Error in delete partner!', HttpStatus.NOT_FOUND);
     }
   }
 }
