@@ -1,9 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString, IsUUID } from 'class-validator';
 
-export class SizeToolDto {
-  @ApiProperty({ example: "size's (UUID)" })
+export class ProductLevelDto {
+  @ApiProperty({ example: "level's (UUID)" })
   @IsString()
   @IsUUID()
-  sizeId: string;
+  levelId: string;
 }

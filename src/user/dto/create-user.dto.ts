@@ -45,7 +45,7 @@ export class CreateUserDto {
   @IsString()
   role: RoleType;
 
-  @ApiProperty({ example: 'image_link' })
+  @ApiProperty({ example: 'https://example.com.png/' })
   @IsString()
   avatar: string;
 

@@ -47,7 +47,7 @@ export class CreateToolDto {
   @IsNumber()
   quantity: number;
 
-  @ApiProperty({ example: 'toolPicture.png' })
+  @ApiProperty({ example: 'https://example.com.png/' })
   @IsUrl()
   image: string;
 

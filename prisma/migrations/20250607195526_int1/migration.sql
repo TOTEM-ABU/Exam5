@@ -10,6 +10,9 @@ CREATE TYPE "MeasureType" AS ENUM ('HOUR', 'DAY');
 -- CreateEnum
 CREATE TYPE "StatusType" AS ENUM ('PENDING', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED');
 
+-- CreateEnum
+CREATE TYPE "LevelType" AS ENUM ('BASIC', 'INTERMEDIATE', 'ADVANCED');
+
 -- CreateTable
 CREATE TABLE "Region" (
     "id" TEXT NOT NULL,
@@ -59,6 +62,7 @@ CREATE TABLE "Brand" (
     "name_uz" TEXT NOT NULL,
     "name_ru" TEXT NOT NULL,
     "name_en" TEXT NOT NULL,
+    "createdBy" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "Brand_pkey" PRIMARY KEY ("id")
@@ -70,6 +74,7 @@ CREATE TABLE "Size" (
     "name_uz" TEXT NOT NULL,
     "name_ru" TEXT NOT NULL,
     "name_en" TEXT NOT NULL,
+    "createdBy" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "Size_pkey" PRIMARY KEY ("id")
@@ -81,6 +86,7 @@ CREATE TABLE "Capacity" (
     "name_uz" TEXT NOT NULL,
     "name_ru" TEXT NOT NULL,
     "name_en" TEXT NOT NULL,
+    "createdBy" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "Capacity_pkey" PRIMARY KEY ("id")
@@ -130,6 +136,7 @@ CREATE TABLE "Tool" (
     "code" TEXT NOT NULL,
     "image" TEXT NOT NULL,
     "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "createdBy" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "Tool_pkey" PRIMARY KEY ("id")
@@ -138,9 +145,7 @@ CREATE TABLE "Tool" (
 -- CreateTable
 CREATE TABLE "Level" (
     "id" TEXT NOT NULL,
-    "name_uz" TEXT NOT NULL,
-    "name_ru" TEXT NOT NULL,
-    "name_en" TEXT NOT NULL,
+    "name" "LevelType" NOT NULL,
     "minWorkingHours" INTEGER NOT NULL,
     "priceHourly" DOUBLE PRECISION NOT NULL,
     "priceDaily" INTEGER NOT NULL,
@@ -161,6 +166,7 @@ CREATE TABLE "Product" (
     "minWorkingHours" INTEGER NOT NULL,
     "priceHourly" DOUBLE PRECISION NOT NULL,
     "priceDaily" INTEGER NOT NULL,
+    "createdBy" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "Product_pkey" PRIMARY KEY ("id")
@@ -183,14 +189,12 @@ CREATE TABLE "Master" (
     "phone" TEXT NOT NULL,
     "isActive" BOOLEAN NOT NULL DEFAULT true,
     "year" TIMESTAMP(3) NOT NULL,
-    "minWorkingHours" INTEGER NOT NULL,
-    "priceHourly" DOUBLE PRECISION NOT NULL,
-    "priceDaily" DOUBLE PRECISION NOT NULL,
     "experience" INTEGER NOT NULL,
     "image" TEXT NOT NULL,
     "passportImage" TEXT NOT NULL,
     "star" DOUBLE PRECISION NOT NULL DEFAULT 0,
     "about" TEXT NOT NULL,
+    "createdBy" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "Master_pkey" PRIMARY KEY ("id")
@@ -288,7 +292,6 @@ CREATE TABLE "OrderProduct" (
     "productId" TEXT NOT NULL,
     "count" INTEGER NOT NULL,
     "measure" "MeasureType" NOT NULL,
-    "quantity" INTEGER NOT NULL,
     "price" DOUBLE PRECISION NOT NULL,
     "levelId" TEXT,
 
@@ -312,7 +315,6 @@ CREATE TABLE "Contact" (
     "surName" TEXT NOT NULL,
     "phone" TEXT NOT NULL,
     "address" TEXT NOT NULL,
-    "message" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "Contact_pkey" PRIMARY KEY ("id")
@@ -378,12 +380,6 @@ CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 CREATE UNIQUE INDEX "User_phoneNumber_key" ON "User"("phoneNumber");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Session_ipAddress_key" ON "Session"("ipAddress");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Session_token_key" ON "Session"("token");
-
--- CreateIndex
 CREATE UNIQUE INDEX "Brand_name_uz_key" ON "Brand"("name_uz");
 
 -- CreateIndex
@@ -432,15 +428,6 @@ CREATE UNIQUE INDEX "Tool_description_en_key" ON "Tool"("description_en");
 CREATE UNIQUE INDEX "Tool_code_key" ON "Tool"("code");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Level_name_uz_key" ON "Level"("name_uz");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Level_name_ru_key" ON "Level"("name_ru");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Level_name_en_key" ON "Level"("name_en");
-
--- CreateIndex
 CREATE UNIQUE INDEX "Product_name_uz_key" ON "Product"("name_uz");
 
 -- CreateIndex
@@ -474,6 +461,15 @@ ALTER TABLE "User" ADD CONSTRAINT "User_regionId_fkey" FOREIGN KEY ("regionId") 
 ALTER TABLE "Session" ADD CONSTRAINT "Session_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "Brand" ADD CONSTRAINT "Brand_createdBy_fkey" FOREIGN KEY ("createdBy") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Size" ADD CONSTRAINT "Size_createdBy_fkey" FOREIGN KEY ("createdBy") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Capacity" ADD CONSTRAINT "Capacity_createdBy_fkey" FOREIGN KEY ("createdBy") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "ToolBrand" ADD CONSTRAINT "ToolBrand_toolId_fkey" FOREIGN KEY ("toolId") REFERENCES "Tool"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -492,10 +488,19 @@ ALTER TABLE "ToolCapacity" ADD CONSTRAINT "ToolCapacity_toolId_fkey" FOREIGN KEY
 ALTER TABLE "ToolCapacity" ADD CONSTRAINT "ToolCapacity_capacityId_fkey" FOREIGN KEY ("capacityId") REFERENCES "Capacity"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "Tool" ADD CONSTRAINT "Tool_createdBy_fkey" FOREIGN KEY ("createdBy") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Product" ADD CONSTRAINT "Product_createdBy_fkey" FOREIGN KEY ("createdBy") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "ProductLevel" ADD CONSTRAINT "ProductLevel_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "ProductLevel" ADD CONSTRAINT "ProductLevel_levelId_fkey" FOREIGN KEY ("levelId") REFERENCES "Level"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Master" ADD CONSTRAINT "Master_createdBy_fkey" FOREIGN KEY ("createdBy") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Order" ADD CONSTRAINT "Order_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
