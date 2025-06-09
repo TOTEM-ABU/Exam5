@@ -281,6 +281,10 @@ model Order {
   paymentType       PaymentType
   withDelivery      Boolean
   status            StatusType
+  subtotal          Float       @default(0)
+  deliveryFee       Float       @default(0)
+  tax               Float       @default(0)
+  discount          Float       @default(0)
   commentToDelivery String?
 
   User   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)

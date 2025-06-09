@@ -33,7 +33,14 @@ export class OrderService {
           },
         });
 
-        let total = 0;
+        let subtotal = 0;
+        let deliveryFee = 0;
+        const taxRate = 0.1;
+        let discount = 0;
+
+        if (dto.withDelivery) {
+          deliveryFee = 10;
+        }
 
         for (const orderProduct of dto.orderProducts) {
           const [product, level] = await Promise.all([
@@ -51,17 +58,17 @@ export class OrderService {
 
           const productPrice =
             orderProduct.measure === MeasureType.HOUR
-              ? product.priceHourly
-              : product.priceDaily;
+              ? product.priceHourly * orderProduct.meausureCount
+              : product.priceDaily * orderProduct.meausureCount;
 
           const levelPrice =
             orderProduct.measure === MeasureType.HOUR
-              ? level.priceHourly
-              : level.priceDaily;
+              ? level.priceHourly * orderProduct.meausureCount
+              : level.priceDaily * orderProduct.meausureCount;
 
           const finalPrice = productPrice + levelPrice;
-          const subTotal = finalPrice * orderProduct.count;
-          total += subTotal;
+          const productSubtotal = finalPrice * orderProduct.count;
+          subtotal += productSubtotal;
 
           await prisma.product.update({
             where: { id: product.id },
@@ -93,6 +100,9 @@ export class OrderService {
                 throw new BadRequestException('Asbob miqdori yetarli emas!');
               }
 
+              const toolPrice = toolRecord.price * orderProduct.meausureCount;
+              subtotal += toolPrice * tool.count;
+
               await prisma.tool.update({
                 where: { id: toolRecord.id },
                 data: {
@@ -107,7 +117,7 @@ export class OrderService {
                   productId: orderProduct.productId,
                   toolId: tool.toolId,
                   count: tool.count,
-                  meausureCount: 1,
+                  meausureCount: orderProduct.meausureCount,
                 },
               });
             }
@@ -125,7 +135,8 @@ export class OrderService {
               throw new BadRequestException('Asbob miqdori yetarli emas!');
             }
 
-            total += tool.price * orderTool.count;
+            const toolPrice = tool.price * 1;
+            subtotal += toolPrice * orderTool.count;
 
             await prisma.tool.update({
               where: { id: tool.id },
@@ -144,6 +155,14 @@ export class OrderService {
             });
           }
         }
+
+        if (subtotal > 100) {
+          discount = subtotal * 0.05;
+        }
+
+        const tax = subtotal * taxRate;
+
+        const total = subtotal + deliveryFee + tax - discount;
 
         const updatedOrder = await prisma.order.update({
           where: { id: createdOrder.id },
@@ -301,7 +320,7 @@ export class OrderService {
         where,
         include: {
           orderTools: { include: { Tool: true } },
-          orderProducts: { include: { Product: true } },
+          orderProducts: { include: { Product: true, Level: true } },
           masters: { include: { Master: true } },
           comments: true,
         },

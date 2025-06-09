@@ -8,7 +8,7 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .setTitle('Services NestJs')
-    .setVersion('1.0')
+    .setVersion('1.2')
     .addSecurityRequirements('bearer', ['bearer'])
     .addBearerAuth()
     .build();

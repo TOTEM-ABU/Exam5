@@ -43,10 +43,15 @@ export class CreateOrderDto {
   @IsString()
   commentToDelivery?: string;
 
+  @ApiProperty({ example: 'DISCOUNT10', required: false })
+  @IsOptional()
+  @IsString()
+  promoCode?: string;
+
   @ApiProperty({ type: [OrderProductDto] })
   @ValidateNested({ each: true })
   @Type(() => OrderProductDto)
-  orderProducts: OrderProductDto[]; 
+  orderProducts: OrderProductDto[];
 
   @ApiProperty({ type: [OrderToolDto] })
   @ValidateNested({ each: true })

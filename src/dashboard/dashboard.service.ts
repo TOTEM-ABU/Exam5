@@ -186,7 +186,10 @@ export class DashboardService {
 
   async myProfile(userId: string) {
     try {
-      const me = await this.prisma.user.findFirst({ where: { id: userId } });
+      const me = await this.prisma.user.findFirst({
+        where: { id: userId },
+        include: { Region: true },
+      });
 
       return me;
     } catch (error) {
