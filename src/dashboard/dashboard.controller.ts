@@ -13,7 +13,7 @@ export class DashboardController {
   @Roles(RoleType.ADMIN)
   @UseGuards(RoleGuard)
   @UseGuards(AuthGuard)
-  @Get()
+  @Get('my-brands')
   getBrands(@Req() req: Request) {
     return this.dashboardService.myBrands(req['user']);
   }
@@ -21,7 +21,7 @@ export class DashboardController {
   @Roles(RoleType.ADMIN)
   @UseGuards(RoleGuard)
   @UseGuards(AuthGuard)
-  @Get()
+  @Get('my-sizes')
   getSizes(@Req() req: Request) {
     return this.dashboardService.mySizes(req['user']);
   }
@@ -29,7 +29,7 @@ export class DashboardController {
   @Roles(RoleType.ADMIN)
   @UseGuards(RoleGuard)
   @UseGuards(AuthGuard)
-  @Get()
+  @Get('my-capacities')
   getCapacities(@Req() req: Request) {
     return this.dashboardService.myCapacities(req['user']);
   }
@@ -37,7 +37,7 @@ export class DashboardController {
   @Roles(RoleType.ADMIN)
   @UseGuards(RoleGuard)
   @UseGuards(AuthGuard)
-  @Get()
+  @Get('my-tools')
   getTools(@Req() req: Request) {
     return this.dashboardService.myTools(req['user']);
   }
@@ -45,7 +45,7 @@ export class DashboardController {
   @Roles(RoleType.ADMIN)
   @UseGuards(RoleGuard)
   @UseGuards(AuthGuard)
-  @Get()
+  @Get('my-products')
   getProducts(@Req() req: Request) {
     return this.dashboardService.myProducts(req['user']);
   }
@@ -53,7 +53,7 @@ export class DashboardController {
   @Roles(RoleType.ADMIN)
   @UseGuards(RoleGuard)
   @UseGuards(AuthGuard)
-  @Get()
+  @Get('my-masters')
   getMasters(@Req() req: Request) {
     return this.dashboardService.myMasters(req['user']);
   }
@@ -66,7 +66,7 @@ export class DashboardController {
   )
   @UseGuards(RoleGuard)
   @UseGuards(AuthGuard)
-  @Get()
+  @Get('my-comments')
   getComments(@Req() req: Request) {
     return this.dashboardService.myComments(req['user']);
   }
@@ -79,7 +79,7 @@ export class DashboardController {
   )
   @UseGuards(RoleGuard)
   @UseGuards(AuthGuard)
-  @Get()
+  @Get('my-orders')
   getOrders(@Req() req: Request) {
     return this.dashboardService.myOrders(req['user']);
   }
@@ -92,7 +92,7 @@ export class DashboardController {
   )
   @UseGuards(RoleGuard)
   @UseGuards(AuthGuard)
-  @Get()
+  @Get('my-stars')
   getStars(@Req() req: Request) {
     return this.dashboardService.myStars(req['user']);
   }
@@ -105,7 +105,7 @@ export class DashboardController {
   )
   @UseGuards(RoleGuard)
   @UseGuards(AuthGuard)
-  @Get()
+  @Get('me')
   me(@Req() req: Request) {
     return this.dashboardService.myProfile(req['user']);
   }
