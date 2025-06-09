@@ -59,6 +59,7 @@ model User {
   role         RoleType
   avatar       String
   refreshToken String?
+  telegramId   String?
   isVerified   Boolean  @default(false)
 
   Region   Region? @relation(fields: [regionId], references: [id])
@@ -80,12 +81,12 @@ model User {
 
 model Session {
   id         String   @id @default(uuid())
-  ipAddress  String   
+  ipAddress  String
   deviceInfo String
-  token      String   
+  token      String
   expiresAt  DateTime
 
-  User   User   @relation(fields: [userId], references: [id])
+  User   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String
 
   createdAt DateTime @default(now())
@@ -97,7 +98,7 @@ model Brand {
   name_ru String @unique
   name_en String @unique
 
-  createdByUser User?   @relation(fields: [createdBy], references: [id])
+  createdByUser User?   @relation(fields: [createdBy], references: [id], onDelete: Cascade)
   createdBy     String?
 
   tools ToolBrand[]
@@ -111,7 +112,7 @@ model Size {
   name_ru String @unique
   name_en String @unique
 
-  createdByUser User?   @relation(fields: [createdBy], references: [id])
+  createdByUser User?   @relation(fields: [createdBy], references: [id], onDelete: Cascade)
   createdBy     String?
 
   tools ToolSize[]
@@ -125,7 +126,7 @@ model Capacity {
   name_ru String @unique
   name_en String @unique
 
-  createdByUser User?   @relation(fields: [createdBy], references: [id])
+  createdByUser User?   @relation(fields: [createdBy], references: [id], onDelete: Cascade)
   createdBy     String?
 
   tools ToolCapacity[]
@@ -190,7 +191,7 @@ model Tool {
   toolCapacities    ToolCapacity[]
   orderProductTools OrderProductTool[]
 
-  createdByUser User?   @relation(fields: [createdBy], references: [id])
+  createdByUser User?   @relation(fields: [createdBy], references: [id], onDelete: Cascade)
   createdBy     String?
 
   createdAt DateTime @default(now())
@@ -227,7 +228,7 @@ model Product {
   masterProducts MasterProduct[]
   orderProducts  OrderProduct[]
 
-  createdByUser User?   @relation(fields: [createdBy], references: [id])
+  createdByUser User?   @relation(fields: [createdBy], references: [id], onDelete: Cascade)
   createdBy     String?
 
   createdAt DateTime @default(now())
@@ -248,23 +249,23 @@ model ProductLevel {
 }
 
 model Master {
-  id              String   @id @default(uuid())
-  name            String
-  phone           String   @unique
-  isActive        Boolean  @default(true)
-  year            DateTime
-  experience      Int
-  image           String
-  passportImage   String
-  star            Float    @default(0)
-  about           String
+  id            String   @id @default(uuid())
+  name          String
+  phone         String   @unique
+  isActive      Boolean  @default(true)
+  year          DateTime
+  experience    Int
+  image         String
+  passportImage String
+  star          Float    @default(0)
+  about         String
 
   masterProducts MasterProduct[]
   masterStar     MasterStar[]
   masterLevels   MasterLevel[]
   orderMasters   OrderMaster[]
 
-  createdByUser User?   @relation(fields: [createdBy], references: [id])
+  createdByUser User?   @relation(fields: [createdBy], references: [id], onDelete: Cascade)
   createdBy     String?
 
   createdAt DateTime @default(now())
@@ -282,8 +283,8 @@ model Order {
   status            StatusType
   commentToDelivery String?
 
+  User   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String?
-  User   User?   @relation(fields: [userId], references: [id])
 
   comments      Comment[]
   orderTools    OrderTool[]
@@ -301,7 +302,7 @@ model Comment {
   userId  String?
 
   Order Order? @relation(fields: [orderId], references: [id])
-  User  User?  @relation(fields: [userId], references: [id])
+  User  User?  @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
 }
@@ -365,10 +366,11 @@ model OrderTool {
 model OrderProductTool {
   id String @id @default(uuid())
 
-  orderId   String
-  productId String
-  toolId    String
-  count     Int
+  orderId       String
+  productId     String
+  toolId        String
+  count         Int
+  meausureCount Int
 
   OrderProduct OrderProduct @relation(fields: [orderId, productId], references: [orderId, productId], onDelete: Cascade)
   Tool         Tool         @relation(fields: [toolId], references: [id])
@@ -380,9 +382,9 @@ model OrderProduct {
   orderId   String
   productId String
 
-  count    Int
-  measure  MeasureType
-  price    Float
+  count   Int
+  measure MeasureType
+  price   Float
 
   Order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
   Product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
@@ -453,7 +455,7 @@ model MasterStar {
   userId   String?
   masterId String?
 
-  User User? @relation(fields: [userId], references: [id])
+  User User? @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   Master    Master?  @relation(fields: [masterId], references: [id])
   createdAt DateTime @default(now())

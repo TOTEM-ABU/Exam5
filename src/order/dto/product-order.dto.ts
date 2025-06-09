@@ -1,6 +1,8 @@
 import {
   IsEnum,
   IsInt,
+  IsNumber,
+  IsPositive,
   IsString,
   IsUUID,
   ValidateNested,
@@ -21,8 +23,9 @@ export class OrderProductDto {
   @IsUUID()
   levelId: string;
 
-  @ApiProperty({ example: 10 })
+  @ApiProperty({ example: 2 })
   @IsInt()
+  @IsPositive()
   count: number;
 
   @ApiProperty({ enum: MeasureType, example: 'HOUR/DAY' })
@@ -30,7 +33,15 @@ export class OrderProductDto {
   @IsString()
   measure: MeasureType;
 
-  @ApiProperty({ type: [OrderProductToolDto], description: 'Product bilan birga ishlatiladigan asboblar' })
+  @ApiProperty({ example: 2 })
+  @IsInt()
+  @IsPositive()
+  meausureCount: number;
+
+  @ApiProperty({
+    type: [OrderProductToolDto],
+    description: 'Product bilan birga ishlatiladigan asboblar',
+  })
   @ValidateNested({ each: true })
   @Type(() => OrderProductToolDto)
   tools: OrderProductToolDto[];

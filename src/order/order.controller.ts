@@ -94,12 +94,6 @@ export class OrderController {
     });
   }
 
-  @UseGuards(AuthGuard)
-  @Get('myOrders')
-  get(@Req() req: Request) {
-    return this.orderService.myOrders(req['user']);
-  }
-
   @Roles(RoleType.ADMIN, RoleType.SUPER_ADMIN, RoleType.VIEWER_ADMIN)
   @UseGuards(RoleGuard)
   @UseGuards(AuthGuard)

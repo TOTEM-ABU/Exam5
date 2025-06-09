@@ -61,7 +61,6 @@ export class UserController {
     return this.userService.refreshAccessToken(dto);
   }
 
-  // @UseGuards(SessionGuard)
   @UseGuards(AuthGuard)
   @Patch('update-password')
   async updatePassword(@Req() req: Request, @Body() dto: UpdatePasswordDto) {
@@ -70,13 +69,15 @@ export class UserController {
 
   @Roles(RoleType.ADMIN, RoleType.SUPER_ADMIN)
   @UseGuards(RoleGuard)
-  // @UseGuards(SessionGuard)
   @UseGuards(AuthGuard)
   @Patch('update/:id')
   async update(@Param('id') id: string, @Body() dto: UpdateUserDto) {
     return this.userService.updateUser(id, dto);
   }
 
+  @Roles(RoleType.ADMIN)
+  @UseGuards(RoleGuard)
+  @UseGuards(AuthGuard)
   @Delete(':id')
   async delete(@Param('id') id: string) {
     return this.userService.delete(id);
@@ -84,7 +85,6 @@ export class UserController {
 
   @Roles(RoleType.ADMIN)
   @UseGuards(RoleGuard)
-  // @UseGuards(SessionGuard)
   @UseGuards(AuthGuard)
   @Get()
   @ApiQuery({ name: 'firstName', required: false })
@@ -131,12 +131,5 @@ export class UserController {
       page,
       limit,
     });
-  }
-
-  // @UseGuards(SessionGuard)
-  @UseGuards(AuthGuard)
-  @Get('me')
-  async me(@Req() req: Request) {
-    return this.userService.me(req['user']);
   }
 }

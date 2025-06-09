@@ -21,6 +21,8 @@ import { ShowcaseModule } from './showcase/showcase.module';
 import { SizeModule } from './size/size.module';
 import { ToolModule } from './tool/tool.module';
 import { UserModule } from './user/user.module';
+import { TgModule } from './bot/bot.module';
+import { DashboardModule } from './dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -52,6 +54,8 @@ import { UserModule } from './user/user.module';
     ToolModule,
     UserModule,
     CapacityModule,
+    TgModule,
+    DashboardModule,
   ],
   controllers: [MulterController],
 })

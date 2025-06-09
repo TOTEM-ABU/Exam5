@@ -10,7 +10,6 @@ import {
 import { PrismaService } from 'src/tools/prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import { MailService } from 'src/tools/mail/mail.service';
-import { skip } from 'node:test';
 import { CreateUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
 import { CreateAdminDto } from './dto/create-admin.dto';
@@ -199,21 +198,6 @@ export class UserService {
     }
   }
 
-  async me(userId: string) {
-    try {
-      const user = await this.prisma.user.findFirst({
-        where: { id: userId },
-        include: { Region: true },
-      });
-      return user;
-    } catch (error) {
-      if (error instanceof HttpException) {
-        throw error;
-      }
-      throw new NotFoundException('User not exists yet!');
-    }
-  }
-
   async verifyOtp(data: VerifyOtpDto) {
     try {
       const { email, otp } = data;
@@ -260,7 +244,7 @@ export class UserService {
         `Your OTP code is: ${otp}\n\nIt will expire in 5 minutes.`,
       );
 
-      return { message: 'OTP resent successfully!' };
+      return { message: 'OTP sent successfully!' };
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;
@@ -407,14 +391,16 @@ export class UserService {
 
   async delete(id: string) {
     try {
-      const user = await this.prisma.user.findUnique({ where: { id } });
-      if (!user) {
+      const remove = await this.prisma.user.delete({ where: { id } });
+
+      if (!remove) {
         throw new NotFoundException('User not found!');
       }
 
-      await this.prisma.user.delete({ where: { id } });
-      return { message: 'User deleted successfully!' };
+      return remove;
     } catch (error) {
+      console.log(error);
+
       if (error instanceof HttpException) {
         throw error;
       }

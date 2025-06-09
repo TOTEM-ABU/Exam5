@@ -16,17 +16,15 @@ import { ApiQuery } from '@nestjs/swagger';
 import { Roles } from 'src/tools/decorators/roles.decorators';
 import { RoleType } from '@prisma/client';
 import { RoleGuard } from 'src/tools/guards/role/role.guard';
-import { SessionGuard } from 'src/tools/guards/session/session.guard';
 import { AuthGuard } from 'src/tools/guards/auth/auth.guard';
 
 @Controller('region')
 export class RegionController {
   constructor(private readonly regionService: RegionService) {}
 
-  @Roles(RoleType.ADMIN)
-  @UseGuards(RoleGuard)
-  // @UseGuards(SessionGuard)
-  @UseGuards(AuthGuard)
+  // @Roles(RoleType.ADMIN)
+  // @UseGuards(RoleGuard)
+  // @UseGuards(AuthGuard)
   @Post()
   create(@Body() data: CreateRegionDto) {
     return this.regionService.create(data);

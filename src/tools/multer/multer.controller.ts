@@ -36,9 +36,9 @@ export class MulterController {
   )
   uploadFile(@UploadedFile() file: Express.Multer.File) {
     if (!file) {
-      throw new BadRequestException('Fayl yuborilmadi');
+      throw new BadRequestException('Fayl yuborilmadi!');
     }
 
-    return { url: file.filename };
+    return { url: `http://localhost:3000/uploads/${file.filename}` };
   }
 }

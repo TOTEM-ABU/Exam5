@@ -31,17 +31,20 @@ export class ToolService {
       const toolCount = await this.prisma.tool.count();
       const generatedCode = `TL-${(toolCount + 1).toString().padStart(5, '0')}`;
 
+      // brands, sizes, capacities ni ajratamiz
+      const { brands, sizes, capacities, ...toolData } = data;
+
       const tool = await this.prisma.tool.create({
         data: {
-          ...data,
+          ...toolData,
           code: generatedCode,
           createdBy: userId,
         },
       });
 
-      if (data.brands?.length) {
+      if (brands?.length) {
         await this.prisma.toolBrand.createMany({
-          data: data.brands.map((brand) => ({
+          data: brands.map((brand) => ({
             toolId: tool.id,
             brandId: brand.brandId,
           })),
@@ -49,9 +52,9 @@ export class ToolService {
         });
       }
 
-      if (data.sizes?.length) {
+      if (sizes?.length) {
         await this.prisma.toolSize.createMany({
-          data: data.sizes.map((size) => ({
+          data: sizes.map((size) => ({
             toolId: tool.id,
             sizeId: size.sizeId,
           })),
@@ -59,9 +62,9 @@ export class ToolService {
         });
       }
 
-      if (data.capacities?.length) {
+      if (capacities?.length) {
         await this.prisma.toolCapacity.createMany({
-          data: data.capacities.map((capacity) => ({
+          data: capacities.map((capacity) => ({
             toolId: tool.id,
             capacityId: capacity.capacityId,
           })),
@@ -71,6 +74,7 @@ export class ToolService {
 
       return tool;
     } catch (error) {
+      console.log(error);
       if (error instanceof HttpException) {
         throw error;
       }

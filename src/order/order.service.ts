@@ -40,9 +40,7 @@ export class OrderService {
             prisma.product.findUnique({
               where: { id: orderProduct.productId },
             }),
-            prisma.level.findUnique({
-              where: { id: orderProduct.levelId },
-            }),
+            prisma.level.findUnique({ where: { id: orderProduct.levelId } }),
           ]);
 
           if (!product) throw new NotFoundException('Product topilmadi!');
@@ -51,12 +49,18 @@ export class OrderService {
             throw new BadRequestException('Product miqdori yetarli emas!');
           }
 
-          const price =
+          const productPrice =
+            orderProduct.measure === MeasureType.HOUR
+              ? product.priceHourly
+              : product.priceDaily;
+
+          const levelPrice =
             orderProduct.measure === MeasureType.HOUR
               ? level.priceHourly
               : level.priceDaily;
 
-          const subTotal = price * orderProduct.count;
+          const finalPrice = productPrice + levelPrice;
+          const subTotal = finalPrice * orderProduct.count;
           total += subTotal;
 
           await prisma.product.update({
@@ -67,18 +71,18 @@ export class OrderService {
             },
           });
 
-          const newOrderProduct = await prisma.orderProduct.create({
+          await prisma.orderProduct.create({
             data: {
               orderId: createdOrder.id,
               productId: orderProduct.productId,
               levelId: orderProduct.levelId,
               count: orderProduct.count,
               measure: orderProduct.measure,
-              price: price,
+              price: finalPrice,
             },
           });
 
-          if (orderProduct.tools && orderProduct.tools.length) {
+          if (orderProduct.tools?.length) {
             for (const tool of orderProduct.tools) {
               const toolRecord = await prisma.tool.findUnique({
                 where: { id: tool.toolId },
@@ -88,8 +92,6 @@ export class OrderService {
               if (toolRecord.quantity < tool.count) {
                 throw new BadRequestException('Asbob miqdori yetarli emas!');
               }
-
-              total += toolRecord.price * tool.count;
 
               await prisma.tool.update({
                 where: { id: toolRecord.id },
@@ -105,13 +107,14 @@ export class OrderService {
                   productId: orderProduct.productId,
                   toolId: tool.toolId,
                   count: tool.count,
+                  meausureCount: 1,
                 },
               });
             }
           }
         }
 
-        if (dto.orderTools && dto.orderTools.length) {
+        if (dto.orderTools?.length) {
           for (const orderTool of dto.orderTools) {
             const tool = await prisma.tool.findUnique({
               where: { id: orderTool.toolId },
@@ -150,28 +153,19 @@ export class OrderService {
               include: {
                 Product: true,
                 Level: true,
-                tools: {
-                  include: {
-                    Tool: true,
-                  },
-                },
+                tools: { include: { Tool: true } },
               },
             },
-            orderTools: {
-              include: {
-                Tool: true,
-              },
-            },
+            orderTools: { include: { Tool: true } },
             masters: true,
+            comments: true,
           },
         });
 
         return updatedOrder;
       });
     } catch (error) {
-      if (error instanceof HttpException) {
-        throw error;
-      }
+      if (error instanceof HttpException) throw error;
       throw new HttpException(
         'Order yaratishda xatolik: ' + error.message,
         HttpStatus.BAD_REQUEST,
@@ -383,23 +377,6 @@ export class OrderService {
         throw error;
       }
       throw new HttpException('Error in update order!', HttpStatus.NOT_FOUND);
-    }
-  }
-
-  async myOrders(userId: string) {
-    try {
-      const order = await this.prisma.order.findFirst({ where: { userId } });
-
-      if (!order) {
-        throw new NotFoundException('User have not orders!');
-      }
-
-      return order;
-    } catch (error) {
-      if (error instanceof HttpException) {
-        throw error;
-      }
-      throw new HttpException('Error in get myOrders!', HttpStatus.NOT_FOUND);
     }
   }
 
