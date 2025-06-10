@@ -32,9 +32,6 @@ export class ProductController {
     return this.productService.create(createProductDto, req['user']);
   }
 
-  @Roles(RoleType.ADMIN, RoleType.SUPER_ADMIN)
-  @UseGuards(RoleGuard)
-  @UseGuards(AuthGuard)
   @Get()
   @ApiQuery({ name: 'name_uz', required: false, type: String })
   @ApiQuery({ name: 'name_ru', required: false, type: String })

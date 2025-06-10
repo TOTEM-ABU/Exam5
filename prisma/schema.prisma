@@ -71,7 +71,7 @@ model User {
   masterStars MasterStar[]
   brands      Brand[]
   sizes       Size[]
-  capacities  Capacity[]
+  colors      Color[]
   tools       Tool[]
   products    Product[]
   masters     Master[]
@@ -120,7 +120,7 @@ model Size {
   createdAt DateTime @default(now())
 }
 
-model Capacity {
+model Color {
   id      String @id @default(uuid())
   name_uz String @unique
   name_ru String @unique
@@ -129,7 +129,7 @@ model Capacity {
   createdByUser User?   @relation(fields: [createdBy], references: [id], onDelete: Cascade)
   createdBy     String?
 
-  tools ToolCapacity[]
+  tools ToolColors[]
 
   createdAt DateTime @default(now())
 }
@@ -152,20 +152,19 @@ model ToolSize {
   toolId String
   sizeId String
 
-  tool Tool @relation(fields: [toolId], references: [id], onDelete: Cascade)
-  size Size @relation(fields: [sizeId], references: [id], onDelete: Cascade)
-
+  tool      Tool     @relation(fields: [toolId], references: [id], onDelete: Cascade)
+  size      Size     @relation(fields: [sizeId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
 }
 
-model ToolCapacity {
+model ToolColors {
   id String @id @default(uuid())
 
-  toolId     String
-  capacityId String
+  toolId  String?
+  colorId String?
 
-  tool     Tool     @relation(fields: [toolId], references: [id], onDelete: Cascade)
-  capacity Capacity @relation(fields: [capacityId], references: [id], onDelete: Cascade)
+  Tool  Tool?  @relation(fields: [toolId], references: [id])
+  Color Color? @relation(fields: [colorId], references: [id])
 
   createdAt DateTime @default(now())
 }
@@ -188,7 +187,7 @@ model Tool {
   orderTools        OrderTool[]
   toolBrands        ToolBrand[]
   toolSizes         ToolSize[]
-  toolCapacities    ToolCapacity[]
+  toolColors        ToolColors[]
   orderProductTools OrderProductTool[]
 
   createdByUser User?   @relation(fields: [createdBy], references: [id], onDelete: Cascade)

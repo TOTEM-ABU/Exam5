@@ -3,7 +3,6 @@ import {
   HttpException,
   HttpStatus,
   Injectable,
-  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { CreateToolDto } from './dto/create-tool.dto';
@@ -31,8 +30,7 @@ export class ToolService {
       const toolCount = await this.prisma.tool.count();
       const generatedCode = `TL-${(toolCount + 1).toString().padStart(5, '0')}`;
 
-      // brands, sizes, capacities ni ajratamiz
-      const { brands, sizes, capacities, ...toolData } = data;
+      const { brands, sizes, colors, ...toolData } = data;
 
       const tool = await this.prisma.tool.create({
         data: {
@@ -62,11 +60,11 @@ export class ToolService {
         });
       }
 
-      if (capacities?.length) {
-        await this.prisma.toolCapacity.createMany({
-          data: capacities.map((capacity) => ({
+      if (colors?.length) {
+        await this.prisma.toolColors.createMany({
+          data: colors.map((color) => ({
             toolId: tool.id,
-            capacityId: capacity.capacityId,
+            colorId: color.colorId,
           })),
           skipDuplicates: true,
         });
@@ -166,9 +164,9 @@ export class ToolService {
               size: true,
             },
           },
-          toolCapacities: {
+          toolColors: {
             include: {
-              capacity: true,
+              Color: true,
             },
           },
         },
@@ -211,7 +209,7 @@ export class ToolService {
         include: {
           toolBrands: true,
           toolSizes: true,
-          toolCapacities: true,
+          toolColors: true,
         },
       });
       if (!tool) {

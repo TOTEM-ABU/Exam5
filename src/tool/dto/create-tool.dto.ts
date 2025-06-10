@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsNumber, IsString, IsUrl, ValidateNested } from 'class-validator';
 import { BrandToolDto } from './brand-tool.dto';
 import { SizeToolDto } from './size-tool.dto';
-import { CapacityToolDto } from './capacity-tool.dto';
+import { ColorToolDto } from './color-tool.dto';
 import { Type } from 'class-transformer';
 
 export class CreateToolDto {
@@ -61,8 +61,8 @@ export class CreateToolDto {
   @Type(() => SizeToolDto)
   sizes: SizeToolDto[];
 
-  @ApiProperty({ type: [CapacityToolDto] })
+  @ApiProperty({ type: [ColorToolDto] })
   @ValidateNested({ each: true })
-  @Type(() => CapacityToolDto)
-  capacities: CapacityToolDto[];
+  @Type(() => ColorToolDto)
+  colors: ColorToolDto[];
 }

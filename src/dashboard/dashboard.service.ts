@@ -48,22 +48,22 @@ export class DashboardService {
     }
   }
 
-  async myCapacities(userId: string) {
+  async myColors(userId: string) {
     try {
-      const capacities = await this.prisma.capacity.findMany({
+      const colors = await this.prisma.color.findMany({
         where: { createdBy: userId },
       });
 
-      if (!capacities || capacities.length === 0) {
-        throw new NotFoundException('You don`t create capacities yet!');
+      if (!colors || colors.length === 0) {
+        throw new NotFoundException('You don`t create colors yet!');
       }
 
-      return capacities;
+      return colors;
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;
       }
-      throw new HttpException('Error in get capacities!', HttpStatus.NOT_FOUND);
+      throw new HttpException('Error in get colors!', HttpStatus.NOT_FOUND);
     }
   }
 

@@ -10,26 +10,26 @@ import {
   UseGuards,
   Req,
 } from '@nestjs/common';
-import { CapacityService } from './capacity.service';
-import { CreateCapacityDto } from './dto/create-capacity.dto';
-import { UpdateCapacityDto } from './dto/update-capacity.dto';
 import { ApiQuery } from '@nestjs/swagger';
 import { Roles } from 'src/tools/decorators/roles.decorators';
 import { RoleType } from '@prisma/client';
 import { RoleGuard } from 'src/tools/guards/role/role.guard';
 import { AuthGuard } from 'src/tools/guards/auth/auth.guard';
 import { Request } from 'express';
+import { ColorService } from './color.service';
+import { UpdateColorDto } from './dto/update-color.dto';
+import { CreateColorDto } from './dto/create-color.dto';
 
-@Controller('capacity')
-export class CapacityController {
-  constructor(private readonly capacityService: CapacityService) {}
+@Controller('color')
+export class ColorController {
+  constructor(private readonly colorService: ColorService) {}
 
   @Roles(RoleType.ADMIN)
   @UseGuards(RoleGuard)
   @UseGuards(AuthGuard)
   @Post()
-  create(@Body() data: CreateCapacityDto, @Req() req: Request) {
-    return this.capacityService.create(data, req['user']);
+  create(@Body() data: CreateColorDto, @Req() req: Request) {
+    return this.colorService.create(data, req['user']);
   }
 
   @Roles(RoleType.ADMIN, RoleType.SUPER_ADMIN)
@@ -53,7 +53,7 @@ export class CapacityController {
     @Query('page') page?: number,
     @Query('limit') limit?: number,
   ) {
-    return this.capacityService.findAll({ search, sort, sortBy, page, limit });
+    return this.colorService.findAll({ search, sort, sortBy, page, limit });
   }
 
   @Roles(RoleType.ADMIN, RoleType.SUPER_ADMIN)
@@ -61,15 +61,15 @@ export class CapacityController {
   @UseGuards(AuthGuard)
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.capacityService.findOne(id);
+    return this.colorService.findOne(id);
   }
 
   @Roles(RoleType.ADMIN, RoleType.SUPER_ADMIN)
   @UseGuards(RoleGuard)
   @UseGuards(AuthGuard)
   @Patch(':id')
-  update(@Param('id') id: string, @Body() data: UpdateCapacityDto) {
-    return this.capacityService.update(id, data);
+  update(@Param('id') id: string, @Body() data: UpdateColorDto) {
+    return this.colorService.update(id, data);
   }
 
   @Roles(RoleType.ADMIN)
@@ -77,6 +77,6 @@ export class CapacityController {
   @UseGuards(AuthGuard)
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.capacityService.remove(id);
+    return this.colorService.remove(id);
   }
 }

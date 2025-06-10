@@ -1,20 +1,14 @@
-import {
-  Injectable,
-  HttpException,
-  HttpStatus,
-  BadRequestException,
-  NotFoundException,
-} from '@nestjs/common';
-import { CreateCapacityDto } from './dto/create-capacity.dto';
-import { UpdateCapacityDto } from './dto/update-capacity.dto';
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { PrismaService } from 'src/tools/prisma/prisma.service';
+import { CreateColorDto } from './dto/create-color.dto';
+import { UpdateColorDto } from './dto/update-color.dto';
 
 @Injectable()
-export class CapacityService {
+export class ColorService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(data: CreateCapacityDto, userId: string) {
-    const existingCapacity = await this.prisma.capacity.findFirst({
+  async create(data: CreateColorDto, userId: string) {
+    const existingColor = await this.prisma.color.findFirst({
       where: {
         name_uz: data.name_uz,
         name_ru: data.name_ru,
@@ -22,29 +16,26 @@ export class CapacityService {
       },
     });
 
-    if (existingCapacity) {
+    if (existingColor) {
       throw new HttpException(
-        'Bu sig‘im allaqachon mavjud',
+        'Bu rang allaqachon mavjud',
         HttpStatus.BAD_REQUEST,
       );
     }
     try {
-      const capacity = await this.prisma.capacity.create({
+      const color = await this.prisma.color.create({
         data: {
           ...data,
           createdBy: userId,
         },
       });
 
-      return capacity;
+      return color;
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;
       }
-      throw new HttpException(
-        'Error in create capacity!',
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new HttpException('Error in create color!', HttpStatus.BAD_REQUEST);
     }
   }
 
@@ -67,7 +58,7 @@ export class CapacityService {
       const take = Number(limit);
       const skip = (Number(page) - 1) * take;
 
-      const capacities = await this.prisma.capacity.findMany({
+      const colors = await this.prisma.color.findMany({
         where: {
           name_uz: {
             contains: search,
@@ -95,7 +86,7 @@ export class CapacityService {
         take,
       });
 
-      const total = await this.prisma.capacity.count({
+      const total = await this.prisma.color.count({
         where: {
           name_uz: {
             contains: search,
@@ -113,7 +104,7 @@ export class CapacityService {
       });
 
       return {
-        data: capacities,
+        data: colors,
         meta: {
           total,
           page: Number(page),
@@ -125,22 +116,19 @@ export class CapacityService {
       if (error instanceof HttpException) {
         throw error;
       }
-      throw new HttpException(
-        'Error in get all capacities!',
-        HttpStatus.NOT_FOUND,
-      );
+      throw new HttpException('Error in get all colors!', HttpStatus.NOT_FOUND);
     }
   }
 
   async findOne(id: string) {
-    const exists = await this.prisma.capacity.findFirst({ where: { id } });
+    const exists = await this.prisma.color.findFirst({ where: { id } });
 
     if (!exists) {
-      throw new HttpException('Sig‘im topilmadi', HttpStatus.NOT_FOUND);
+      throw new HttpException('Color topilmadi!', HttpStatus.NOT_FOUND);
     }
 
     try {
-      const capacity = await this.prisma.capacity.findUnique({
+      const color = await this.prisma.color.findUnique({
         where: { id },
         include: {
           createdByUser: {
@@ -152,27 +140,24 @@ export class CapacityService {
         },
       });
 
-      return capacity;
+      return color;
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;
       }
-      throw new HttpException(
-        'Error in get one capacity!',
-        HttpStatus.NOT_FOUND,
-      );
+      throw new HttpException('Error in get one color!', HttpStatus.NOT_FOUND);
     }
   }
 
-  async update(id: string, data: UpdateCapacityDto) {
-    const exists = await this.prisma.capacity.findFirst({ where: { id } });
+  async update(id: string, data: UpdateColorDto) {
+    const exists = await this.prisma.color.findFirst({ where: { id } });
 
     if (!exists) {
-      throw new HttpException('Sig‘im topilmadi', HttpStatus.NOT_FOUND);
+      throw new HttpException('Color topilmadi!', HttpStatus.NOT_FOUND);
     }
 
     try {
-      const updated = await this.prisma.capacity.update({
+      const updated = await this.prisma.color.update({
         where: { id },
         data,
       });
@@ -182,22 +167,19 @@ export class CapacityService {
       if (error instanceof HttpException) {
         throw error;
       }
-      throw new HttpException(
-        'Error in update capacity!',
-        HttpStatus.NOT_FOUND,
-      );
+      throw new HttpException('Error in update color!', HttpStatus.NOT_FOUND);
     }
   }
 
   async remove(id: string) {
-    const exists = await this.prisma.capacity.findFirst({ where: { id } });
+    const exists = await this.prisma.color.findFirst({ where: { id } });
 
     if (!exists) {
-      throw new HttpException('Sig‘im topilmadi', HttpStatus.NOT_FOUND);
+      throw new HttpException('Color topilmadi!', HttpStatus.NOT_FOUND);
     }
 
     try {
-      const deleted = await this.prisma.capacity.delete({
+      const deleted = await this.prisma.color.delete({
         where: { id },
       });
 
@@ -206,10 +188,7 @@ export class CapacityService {
       if (error instanceof HttpException) {
         throw error;
       }
-      throw new HttpException(
-        'Error in delete capacity!',
-        HttpStatus.NOT_FOUND,
-      );
+      throw new HttpException('Error in delete color!', HttpStatus.NOT_FOUND);
     }
   }
 }

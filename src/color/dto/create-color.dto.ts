@@ -1,16 +1,16 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString } from 'class-validator';
 
-export class CreateCapacityDto {
-  @ApiProperty({ example: '5 kVA' })
+export class CreateColorDto {
+  @ApiProperty({ example: 'Qizil' })
   @IsString()
   name_uz: string;
 
-  @ApiProperty({ example: '5 кВа' })
+  @ApiProperty({ example: 'Красный' })
   @IsString()
   name_ru: string;
 
-  @ApiProperty({ example: '5 kVA' })
+  @ApiProperty({ example: 'Red' })
   @IsString()
   name_en: string;
 }

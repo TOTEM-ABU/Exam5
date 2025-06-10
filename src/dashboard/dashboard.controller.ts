@@ -29,9 +29,9 @@ export class DashboardController {
   @Roles(RoleType.ADMIN)
   @UseGuards(RoleGuard)
   @UseGuards(AuthGuard)
-  @Get('my-capacities')
+  @Get('my-colors')
   getCapacities(@Req() req: Request) {
-    return this.dashboardService.myCapacities(req['user']);
+    return this.dashboardService.myColors(req['user']);
   }
 
   @Roles(RoleType.ADMIN)

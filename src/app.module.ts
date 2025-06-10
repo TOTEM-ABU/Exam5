@@ -5,7 +5,6 @@ import { join } from 'path';
 import { PrismaModule } from './tools/prisma/prisma.module';
 import { MulterController } from './tools/multer/multer.controller';
 import { BrandModule } from './brand/brand.module';
-import { CapacityModule } from './capacity/capacity.module';
 import { CommentModule } from './comment/comment.module';
 import { ContactModule } from './contact/contact.module';
 import { FaqModule } from './faq/faq.module';
@@ -23,6 +22,7 @@ import { ToolModule } from './tool/tool.module';
 import { UserModule } from './user/user.module';
 import { TgModule } from './bot/bot.module';
 import { DashboardModule } from './dashboard/dashboard.module';
+import { ColorModule } from './color/color.module';
 
 @Module({
   imports: [
@@ -37,7 +37,6 @@ import { DashboardModule } from './dashboard/dashboard.module';
       serveRoot: '/uploads',
     }),
     BrandModule,
-    CapacityModule,
     CommentModule,
     ContactModule,
     FaqModule,
@@ -53,9 +52,9 @@ import { DashboardModule } from './dashboard/dashboard.module';
     SizeModule,
     ToolModule,
     UserModule,
-    CapacityModule,
     TgModule,
     DashboardModule,
+    ColorModule,
   ],
   controllers: [MulterController],
 })

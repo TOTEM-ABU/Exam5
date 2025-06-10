@@ -145,7 +145,7 @@ export class ProductService {
                   include: {
                     toolBrands: { include: { brand: true } },
                     toolSizes: { include: { size: true } },
-                    toolCapacities: { include: { capacity: true } },
+                    toolColors: { include: { Color: true } },
                   },
                 },
               },
@@ -199,9 +199,9 @@ export class ProductService {
                       size: true,
                     },
                   },
-                  toolCapacities: {
+                  toolColors: {
                     include: {
-                      capacity: true,
+                      Color: true,
                     },
                   },
                 },
