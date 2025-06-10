@@ -156,8 +156,11 @@ export class OrderService {
           }
         }
 
+        if (dto.promoCode) {
+          discount += subtotal * 0.1; 
+        }
         if (subtotal > 100) {
-          discount = subtotal * 0.05;
+          discount += subtotal * 0.05; 
         }
 
         const tax = subtotal * taxRate;
