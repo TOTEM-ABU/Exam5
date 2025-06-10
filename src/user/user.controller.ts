@@ -9,6 +9,8 @@ import {
   Req,
   UseGuards,
   Query,
+  HttpStatus,
+  Res,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -25,7 +27,7 @@ import { UpdatePasswordDto } from './dto/update-password';
 import { Roles } from 'src/tools/decorators/roles.decorators';
 import { RoleType } from '@prisma/client';
 import { RoleGuard } from 'src/tools/guards/role/role.guard';
-import { SessionGuard } from 'src/tools/guards/session/session.guard';
+import { Response } from 'express';
 
 @Controller('users')
 export class UserController {
@@ -81,6 +83,35 @@ export class UserController {
   @Delete(':id')
   async delete(@Param('id') id: string) {
     return this.userService.delete(id);
+  }
+
+  @Roles(RoleType.ADMIN)
+  @UseGuards(RoleGuard)
+  @UseGuards(AuthGuard)
+  @Get('export-excel')
+  async exportExcel(@Res() res: Response) {
+    console.log('Export Excel endpoint called for users');
+    try {
+      const buffer = await this.userService.exportUserToExcel();
+
+      res.setHeader(
+        'Content-Type',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      );
+      res.setHeader(
+        'Content-Disposition',
+        `attachment; filename=users_${new Date().toISOString()}.xlsx`,
+      );
+
+      console.log('Sending Excel file to client');
+      return res.status(HttpStatus.OK).send(buffer);
+    } catch (error) {
+      console.error('Error in exportExcel:', error);
+      return res.status(error.status || HttpStatus.INTERNAL_SERVER_ERROR).send({
+        message: 'Error exporting users to Excel',
+        error: error.message,
+      });
+    }
   }
 
   @Roles(RoleType.ADMIN)

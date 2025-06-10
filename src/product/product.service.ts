@@ -9,10 +9,69 @@ import {
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { PrismaService } from 'src/tools/prisma/prisma.service';
+import * as ExcelJS from 'exceljs';
 
 @Injectable()
 export class ProductService {
   constructor(private readonly prisma: PrismaService) {}
+
+  async exportProductToExcel(): Promise<Buffer> {
+    try {
+      const products = await this.prisma.product.findMany();
+
+      if (!products.length) {
+        throw new NotFoundException('No products available to export');
+      }
+
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet('Products');
+
+      worksheet.columns = [
+        { header: 'Name (UZ)', key: 'name_uz', width: 20 },
+        { header: 'Name (RU)', key: 'name_ru', width: 20 },
+        { header: 'Name (EN)', key: 'name_en', width: 20 },
+        { header: 'Image URL', key: 'image', width: 40 },
+        { header: 'Min Working Hours', key: 'minWorkingHours', width: 20 },
+        {
+          header: 'Price Hourly',
+          key: 'priceHourly',
+          width: 15,
+          style: { numFmt: '#,##0' },
+        },
+        {
+          header: 'Price Daily',
+          key: 'priceDaily',
+          width: 15,
+          style: { numFmt: '#,##0' },
+        },
+        { header: 'Quantity', key: 'quantity', width: 15 },
+      ];
+
+      products.forEach((product) => {
+        worksheet.addRow({
+          name_uz: product.name_uz || 'N/A',
+          name_ru: product.name_ru || 'N/A',
+          name_en: product.name_en || 'N/A',
+          image: product.image || 'N/A',
+          minWorkingHours: product.minWorkingHours || 0,
+          priceHourly: product.priceHourly || 0,
+          priceDaily: product.priceDaily || 0,
+          quantity: product.quantity || 0,
+        });
+      });
+
+      const priceColumns = ['priceHourly', 'priceDaily'];
+      priceColumns.forEach((col) => {
+        worksheet.getColumn(col).numFmt = '#,##0';
+      });
+
+      const arrayBuffer = await workbook.xlsx.writeBuffer();
+      return Buffer.from(arrayBuffer);
+    } catch (error) {
+      console.error('Error in exportProductToExcel:', error);
+      throw error;
+    }
+  }
 
   async create(data: CreateProductDto, userId: string) {
     const existingProduct = await this.prisma.product.findFirst({

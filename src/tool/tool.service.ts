@@ -8,10 +8,59 @@ import {
 import { CreateToolDto } from './dto/create-tool.dto';
 import { UpdateToolDto } from './dto/update-tool.dto';
 import { PrismaService } from 'src/tools/prisma/prisma.service';
+import * as ExcelJS from 'exceljs';
 
 @Injectable()
 export class ToolService {
   constructor(private readonly prisma: PrismaService) {}
+
+  async exportToolsToExcel(): Promise<Buffer> {
+    try {
+      const tools = await this.prisma.tool.findMany();
+
+      if (!tools.length) {
+        throw new NotFoundException('No tools available to export');
+      }
+
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet('Tools');
+
+      worksheet.columns = [
+        { header: 'Name (UZ)', key: 'name_uz', width: 20 },
+        { header: 'Name (RU)', key: 'name_ru', width: 20 },
+        { header: 'Name (EN)', key: 'name_en', width: 20 },
+        { header: 'Description (UZ)', key: 'description_uz', width: 40 },
+        { header: 'Description (RU)', key: 'description_ru', width: 40 },
+        { header: 'Description (EN)', key: 'description_en', width: 40 },
+        { header: 'Price', key: 'price', width: 15 },
+        { header: 'Quantity', key: 'quantity', width: 15 },
+        { header: 'Image URL', key: 'image', width: 40 },
+      ];
+
+      tools.forEach((tool) => {
+        worksheet.addRow({
+          name_uz: tool.name_uz || 'N/A',
+          name_ru: tool.name_ru || 'N/A',
+          name_en: tool.name_en || 'N/A',
+          description_uz: tool.description_uz || 'N/A',
+          description_ru: tool.description_ru || 'N/A',
+          description_en: tool.description_en || 'N/A',
+          price: tool.price || 0,
+          quantity: tool.quantity || 0,
+          image: tool.image || 'N/A',
+        });
+      });
+
+      worksheet.getColumn('price').numFmt = '#,##0';
+      worksheet.getColumn('quantity').numFmt = '#,##0';
+
+      const arrayBuffer = await workbook.xlsx.writeBuffer();
+      return Buffer.from(arrayBuffer);
+    } catch (error) {
+      console.error('Error in exportToolsToExcel:', error);
+      throw error;
+    }
+  }
 
   async create(data: CreateToolDto, userId: string) {
     const existingTool = await this.prisma.tool.findFirst({

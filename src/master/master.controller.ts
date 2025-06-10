@@ -9,6 +9,8 @@ import {
   Query,
   UseGuards,
   Req,
+  Res,
+  HttpStatus,
 } from '@nestjs/common';
 import { MasterService } from './master.service';
 import { CreateMasterDto } from './dto/create-master.dto';
@@ -19,7 +21,7 @@ import { MarkStarDto } from './dto/master-start.dto';
 import { RoleGuard } from 'src/tools/guards/role/role.guard';
 import { AuthGuard } from 'src/tools/guards/auth/auth.guard';
 import { Roles } from 'src/tools/decorators/roles.decorators';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 
 @Controller('master')
 export class MasterController {
@@ -31,6 +33,35 @@ export class MasterController {
   @Post()
   create(@Body() createMasterDto: CreateMasterDto, @Req() req: Request) {
     return this.masterService.create(createMasterDto, req['user']);
+  }
+
+  @Roles(RoleType.ADMIN)
+  @UseGuards(RoleGuard)
+  @UseGuards(AuthGuard)
+  @Get('export-excel')
+  async exportExcel(@Res() res: Response) {
+    console.log('Export Excel endpoint called for users');
+    try {
+      const buffer = await this.masterService.exportMasterToExcel();
+
+      res.setHeader(
+        'Content-Type',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      );
+      res.setHeader(
+        'Content-Disposition',
+        `attachment; filename=users_${new Date().toISOString()}.xlsx`,
+      );
+
+      console.log('Sending Excel file to client');
+      return res.status(HttpStatus.OK).send(buffer);
+    } catch (error) {
+      console.error('Error in exportExcel:', error);
+      return res.status(error.status || HttpStatus.INTERNAL_SERVER_ERROR).send({
+        message: 'Error exporting users to Excel',
+        error: error.message,
+      });
+    }
   }
 
   @Roles(RoleType.ADMIN, RoleType.SUPER_ADMIN, RoleType.VIEWER_ADMIN)

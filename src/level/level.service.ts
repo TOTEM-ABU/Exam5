@@ -3,15 +3,65 @@ import {
   HttpStatus,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
 } from '@nestjs/common';
 import { CreateLevelDto } from './dto/create-level.dto';
 import { UpdateLevelDto } from './dto/update-level.dto';
 import { PrismaService } from 'src/tools/prisma/prisma.service';
 import { LevelType } from '@prisma/client';
+import * as ExcelJS from 'exceljs';
 
 @Injectable()
 export class LevelService {
   constructor(private readonly prisma: PrismaService) {}
+
+  async exportLevelToExcel(): Promise<Buffer> {
+    try {
+      const levels = await this.prisma.level.findMany();
+
+      if (!levels.length) {
+        throw new NotFoundException('No levels available to export');
+      }
+
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet('Levels');
+
+      worksheet.columns = [
+        { header: 'Level Name', key: 'name', width: 20 },
+        { header: 'Min Working Hours', key: 'minWorkingHours', width: 20 },
+        {
+          header: 'Hourly Price',
+          key: 'priceHourly',
+          width: 15,
+          style: { numFmt: '#,##0' },
+        },
+        {
+          header: 'Daily Price',
+          key: 'priceDaily',
+          width: 15,
+          style: { numFmt: '#,##0' },
+        },
+      ];
+
+      levels.forEach((level) => {
+        worksheet.addRow({
+          name: level.name || 'N/A',
+          minWorkingHours: level.minWorkingHours || 0,
+          priceHourly: level.priceHourly || 0,
+          priceDaily: level.priceDaily || 0,
+        });
+      });
+
+      worksheet.views = [{ state: 'frozen', ySplit: 1 }];
+      worksheet.autoFilter = 'A1:D1';
+
+      const buffer = await workbook.xlsx.writeBuffer();
+      return Buffer.from(buffer);
+    } catch (error) {
+      console.error('Error in exportLevelToExcel:', error);
+      throw new InternalServerErrorException('Failed to export levels');
+    }
+  }
 
   async create(data: CreateLevelDto) {
     const existingLevel = await this.prisma.level.findFirst({

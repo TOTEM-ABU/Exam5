@@ -9,6 +9,8 @@ import {
   Query,
   UseGuards,
   Req,
+  HttpStatus,
+  Res,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -18,7 +20,7 @@ import { RoleType } from '@prisma/client';
 import { RoleGuard } from 'src/tools/guards/role/role.guard';
 import { AuthGuard } from 'src/tools/guards/auth/auth.guard';
 import { Roles } from 'src/tools/decorators/roles.decorators';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 
 @Controller('product')
 export class ProductController {
@@ -30,6 +32,35 @@ export class ProductController {
   @Post()
   create(@Body() createProductDto: CreateProductDto, @Req() req: Request) {
     return this.productService.create(createProductDto, req['user']);
+  }
+
+  @Roles(RoleType.ADMIN)
+  @UseGuards(RoleGuard)
+  @UseGuards(AuthGuard)
+  @Get('export-excel')
+  async exportExcel(@Res() res: Response) {
+    console.log('Export Excel endpoint called for users');
+    try {
+      const buffer = await this.productService.exportProductToExcel();
+
+      res.setHeader(
+        'Content-Type',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      );
+      res.setHeader(
+        'Content-Disposition',
+        `attachment; filename=users_${new Date().toISOString()}.xlsx`,
+      );
+
+      console.log('Sending Excel file to client');
+      return res.status(HttpStatus.OK).send(buffer);
+    } catch (error) {
+      console.error('Error in exportExcel:', error);
+      return res.status(error.status || HttpStatus.INTERNAL_SERVER_ERROR).send({
+        message: 'Error exporting users to Excel',
+        error: error.message,
+      });
+    }
   }
 
   @Get()

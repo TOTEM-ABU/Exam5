@@ -8,6 +8,8 @@ import {
   Delete,
   Query,
   UseGuards,
+  Res,
+  HttpStatus,
 } from '@nestjs/common';
 import { LevelService } from './level.service';
 import { CreateLevelDto } from './dto/create-level.dto';
@@ -17,6 +19,7 @@ import { RoleType } from '@prisma/client';
 import { Roles } from 'src/tools/decorators/roles.decorators';
 import { RoleGuard } from 'src/tools/guards/role/role.guard';
 import { AuthGuard } from 'src/tools/guards/auth/auth.guard';
+import { Response } from 'express';
 
 @Controller('level')
 export class LevelController {
@@ -28,6 +31,35 @@ export class LevelController {
   @Post()
   create(@Body() createLevelDto: CreateLevelDto) {
     return this.levelService.create(createLevelDto);
+  }
+
+  @Roles(RoleType.ADMIN)
+  @UseGuards(RoleGuard)
+  @UseGuards(AuthGuard)
+  @Get('export-excel')
+  async exportExcel(@Res() res: Response) {
+    console.log('Export Excel endpoint called for users');
+    try {
+      const buffer = await this.levelService.exportLevelToExcel();
+
+      res.setHeader(
+        'Content-Type',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      );
+      res.setHeader(
+        'Content-Disposition',
+        `attachment; filename=users_${new Date().toISOString()}.xlsx`,
+      );
+
+      console.log('Sending Excel file to client');
+      return res.status(HttpStatus.OK).send(buffer);
+    } catch (error) {
+      console.error('Error in exportExcel:', error);
+      return res.status(error.status || HttpStatus.INTERNAL_SERVER_ERROR).send({
+        message: 'Error exporting users to Excel',
+        error: error.message,
+      });
+    }
   }
 
   @Get()

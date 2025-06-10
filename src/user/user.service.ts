@@ -20,6 +20,7 @@ import { ResendOtpDto } from './dto/resend-otp-.dto';
 import { UpdatePasswordDto } from './dto/update-password';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import * as ExcelJS from 'exceljs';
 
 @Injectable()
 export class UserService {
@@ -28,6 +29,47 @@ export class UserService {
     private readonly jwt: JwtService,
     private readonly mailer: MailService,
   ) {}
+
+  async exportUserToExcel(): Promise<Buffer> {
+    try {
+      const users = await this.prisma.user.findMany();
+
+      if (!users.length) {
+        throw new NotFoundException('No users available to export');
+      }
+
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet('Users');
+
+      worksheet.columns = [
+        { header: 'First Name', key: 'firstName', width: 20 },
+        { header: 'Last Name', key: 'lastName', width: 20 },
+        { header: 'Phone Number', key: 'phoneNumber', width: 20 },
+        { header: 'Email', key: 'email', width: 30 },
+        { header: 'District', key: 'district', width: 20 },
+        { header: 'Role', key: 'role', width: 20 },
+      ];
+
+      users.forEach((user) => {
+        worksheet.addRow({
+          firstName: user.firstName || 'N/A',
+          lastName: user.lastName || 'N/A',
+          phoneNumber: user.phoneNumber || 'N/A',
+          email: user.email || 'N/A',
+          district: user.district || 'N/A',
+          role: user.role || 'N/A',
+        });
+      });
+
+      const arrayBuffer = await workbook.xlsx.writeBuffer();
+      const buffer = Buffer.from(arrayBuffer);
+
+      return buffer;
+    } catch (error) {
+      console.error('Error in exportToExcel:', error);
+      throw error;
+    }
+  }
 
   async findUser(email: string) {
     const user = await this.prisma.user.findFirst({ where: { email } });

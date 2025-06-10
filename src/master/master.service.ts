@@ -10,10 +10,60 @@ import { CreateMasterDto } from './dto/create-master.dto';
 import { UpdateMasterDto } from './dto/update-master.dto';
 import { PrismaService } from 'src/tools/prisma/prisma.service';
 import { MarkStarDto } from './dto/master-start.dto';
+import * as ExcelJS from 'exceljs';
 
 @Injectable()
 export class MasterService {
   constructor(private readonly prisma: PrismaService) {}
+
+  async exportMasterToExcel(): Promise<Buffer> {
+    try {
+      const masters = await this.prisma.master.findMany();
+
+      if (!masters.length) {
+        throw new NotFoundException('No masters available to export');
+      }
+
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet('Masters');
+
+      worksheet.columns = [
+        { header: 'Name', key: 'name', width: 25 },
+        { header: 'Phone', key: 'phone', width: 20 },
+        {
+          header: 'Birth Year',
+          key: 'year',
+          width: 15,
+          style: { numFmt: 'yyyy' },
+        },
+        { header: 'Experience (years)', key: 'experience', width: 20 },
+        { header: 'Image URL', key: 'image', width: 40 },
+        { header: 'Passport Image', key: 'passportImage', width: 25 },
+        { header: 'About', key: 'about', width: 40 },
+      ];
+
+      masters.forEach((master) => {
+        worksheet.addRow({
+          name: master.name || 'N/A',
+          phone: master.phone || 'N/A',
+          year: master.year || 'N/A',
+          experience: master.experience || 0,
+          image: master.image || 'N/A',
+          passportImage: master.passportImage || 'N/A',
+          about: master.about || 'N/A',
+        });
+      });
+
+      const arrayBuffer = await workbook.xlsx.writeBuffer();
+      const buffer = Buffer.from(arrayBuffer);
+
+      return buffer;
+    } catch (error) {
+      console.error('Error in exportMasterToExcel:', error);
+      throw error;
+    }
+  }
+
   async create(data: CreateMasterDto, userId: string) {
     const existing = await this.prisma.master.findUnique({
       where: { phone: data.phone },
