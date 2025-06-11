@@ -82,7 +82,7 @@ CREATE TABLE "Size" (
 );
 
 -- CreateTable
-CREATE TABLE "Capacity" (
+CREATE TABLE "Color" (
     "id" TEXT NOT NULL,
     "name_uz" TEXT NOT NULL,
     "name_ru" TEXT NOT NULL,
@@ -90,7 +90,7 @@ CREATE TABLE "Capacity" (
     "createdBy" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "Capacity_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Color_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -114,13 +114,13 @@ CREATE TABLE "ToolSize" (
 );
 
 -- CreateTable
-CREATE TABLE "ToolCapacity" (
+CREATE TABLE "ToolColors" (
     "id" TEXT NOT NULL,
-    "toolId" TEXT NOT NULL,
-    "capacityId" TEXT NOT NULL,
+    "toolId" TEXT,
+    "colorId" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "ToolCapacity_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "ToolColors_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -405,13 +405,13 @@ CREATE UNIQUE INDEX "Size_name_ru_key" ON "Size"("name_ru");
 CREATE UNIQUE INDEX "Size_name_en_key" ON "Size"("name_en");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Capacity_name_uz_key" ON "Capacity"("name_uz");
+CREATE UNIQUE INDEX "Color_name_uz_key" ON "Color"("name_uz");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Capacity_name_ru_key" ON "Capacity"("name_ru");
+CREATE UNIQUE INDEX "Color_name_ru_key" ON "Color"("name_ru");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Capacity_name_en_key" ON "Capacity"("name_en");
+CREATE UNIQUE INDEX "Color_name_en_key" ON "Color"("name_en");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Tool_name_uz_key" ON "Tool"("name_uz");
@@ -474,7 +474,7 @@ ALTER TABLE "Brand" ADD CONSTRAINT "Brand_createdBy_fkey" FOREIGN KEY ("createdB
 ALTER TABLE "Size" ADD CONSTRAINT "Size_createdBy_fkey" FOREIGN KEY ("createdBy") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Capacity" ADD CONSTRAINT "Capacity_createdBy_fkey" FOREIGN KEY ("createdBy") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Color" ADD CONSTRAINT "Color_createdBy_fkey" FOREIGN KEY ("createdBy") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "ToolBrand" ADD CONSTRAINT "ToolBrand_toolId_fkey" FOREIGN KEY ("toolId") REFERENCES "Tool"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -489,10 +489,10 @@ ALTER TABLE "ToolSize" ADD CONSTRAINT "ToolSize_toolId_fkey" FOREIGN KEY ("toolI
 ALTER TABLE "ToolSize" ADD CONSTRAINT "ToolSize_sizeId_fkey" FOREIGN KEY ("sizeId") REFERENCES "Size"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "ToolCapacity" ADD CONSTRAINT "ToolCapacity_toolId_fkey" FOREIGN KEY ("toolId") REFERENCES "Tool"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "ToolColors" ADD CONSTRAINT "ToolColors_toolId_fkey" FOREIGN KEY ("toolId") REFERENCES "Tool"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "ToolCapacity" ADD CONSTRAINT "ToolCapacity_capacityId_fkey" FOREIGN KEY ("capacityId") REFERENCES "Capacity"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "ToolColors" ADD CONSTRAINT "ToolColors_colorId_fkey" FOREIGN KEY ("colorId") REFERENCES "Color"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Tool" ADD CONSTRAINT "Tool_createdBy_fkey" FOREIGN KEY ("createdBy") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;

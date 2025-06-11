@@ -20,7 +20,6 @@ import { ShowcaseModule } from './showcase/showcase.module';
 import { SizeModule } from './size/size.module';
 import { ToolModule } from './tool/tool.module';
 import { UserModule } from './user/user.module';
-import { TgModule } from './bot/bot.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { ColorModule } from './color/color.module';
 
@@ -52,7 +51,6 @@ import { ColorModule } from './color/color.module';
     SizeModule,
     ToolModule,
     UserModule,
-    TgModule,
     DashboardModule,
     ColorModule,
   ],
