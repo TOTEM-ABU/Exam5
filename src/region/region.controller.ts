@@ -22,9 +22,9 @@ import { AuthGuard } from 'src/tools/guards/auth/auth.guard';
 export class RegionController {
   constructor(private readonly regionService: RegionService) {}
 
-  // @Roles(RoleType.ADMIN)
-  // @UseGuards(RoleGuard)
-  // @UseGuards(AuthGuard)
+  @Roles(RoleType.ADMIN)
+  @UseGuards(RoleGuard)
+  @UseGuards(AuthGuard)
   @Post()
   create(@Body() data: CreateRegionDto) {
     return this.regionService.create(data);
@@ -64,7 +64,6 @@ export class RegionController {
 
   @Roles(RoleType.ADMIN, RoleType.SUPER_ADMIN)
   @UseGuards(RoleGuard)
-  // @UseGuards(SessionGuard)
   @UseGuards(AuthGuard)
   @Patch(':id')
   update(@Param('id') id: string, @Body() data: UpdateRegionDto) {
@@ -73,7 +72,6 @@ export class RegionController {
 
   @Roles(RoleType.ADMIN)
   @UseGuards(RoleGuard)
-  // @UseGuards(SessionGuard)
   @UseGuards(AuthGuard)
   @Delete(':id')
   remove(@Param('id') id: string) {
