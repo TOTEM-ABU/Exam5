@@ -18,7 +18,6 @@ import { Roles } from 'src/tools/decorators/roles.decorators';
 import { RoleGuard } from 'src/tools/guards/role/role.guard';
 import { AuthGuard } from 'src/tools/guards/auth/auth.guard';
 import { RoleType } from '@prisma/client';
-import { SessionGuard } from 'src/tools/guards/session/session.guard';
 import { Request } from 'express';
 
 @Controller('size')
