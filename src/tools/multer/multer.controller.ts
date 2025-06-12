@@ -39,6 +39,6 @@ export class MulterController {
       throw new BadRequestException('Fayl yuborilmadi!');
     }
 
-    return { url: file.filename };
+    return { url: `http://13.48.148.220/uploads/${file.filename}` };
   }
 }
