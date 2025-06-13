@@ -37,7 +37,7 @@ jobs:
           source: 'dist/*,package.json,ecosystem.config.js,prisma/schema.prisma'
           target: '/home/ubuntu/nestjs-app'
 
-      - name: Restart App on Lightsail viaa SSH
+      - name: Restart App on Lightsail SSH
         uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.LIGHTSAIL_HOST }}
