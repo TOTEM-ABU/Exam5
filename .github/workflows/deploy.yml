@@ -34,7 +34,7 @@ jobs:
           username: ${{ secrets.LIGHTSAIL_USER }}
           key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
           port: 22
-          source: 'dist/*,package.json,ecosystem.config.js,prisma/*,.env'
+          source: 'dist/*,package.json,ecosystem.config.js,prisma/schema.prisma'
           target: '/home/ubuntu/nestjs-app'
 
       - name: Restart App on Lightsail via SSH
