@@ -100,16 +100,11 @@ export class OrderService {
                 throw new BadRequestException('Asbob miqdori yetarli emas!');
               }
 
-              const toolPrice = toolRecord.price * orderProduct.meausureCount;
+              const toolPrice =
+                toolRecord.price * orderProduct.meausureCount * 0.5; // 50% chegirma
               subtotal += toolPrice * tool.count;
 
-              await prisma.tool.update({
-                where: { id: toolRecord.id },
-                data: {
-                  quantity: toolRecord.quantity - tool.count,
-                  isActive: toolRecord.quantity - tool.count > 0,
-                },
-              });
+              // Asbob miqdori kamaytirilmaydi, shuning uchun tool.update olib tashlanadi
 
               await prisma.orderProductTool.create({
                 data: {
@@ -157,10 +152,10 @@ export class OrderService {
         }
 
         if (dto.promoCode) {
-          discount += subtotal * 0.1; 
+          discount += subtotal * 0.1;
         }
         if (subtotal > 100) {
-          discount += subtotal * 0.05; 
+          discount += subtotal * 0.05;
         }
 
         const tax = subtotal * taxRate;
