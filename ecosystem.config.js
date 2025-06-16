@@ -1,7 +1,7 @@
 module.exports = {
   apps: [
     {
-      name: 'nestjs-app',
+      name: 'book-api',
       script: 'dist/main.js',
       instances: 1,
       exec_mode: 'fork',
