@@ -19,9 +19,10 @@ export class GeneralInfoService {
       },
     });
 
-    if (!existingInfo) {
-      throw new BadRequestException('Bu email allaqachon mavjud');
+    if (existingInfo) {
+      throw new BadRequestException('Bu ma`lumot allaqachon mavjud');
     }
+
     try {
       const info = await this.prisma.generalInfo.create({ data });
 

@@ -12,7 +12,6 @@ export class CreateContactDto {
 
   @ApiProperty({ example: '+998883334565' })
   @IsString()
-  @IsPhoneNumber('UZ')
   phone: string;
 
   @ApiProperty({ example: 'Main St. 123' })
